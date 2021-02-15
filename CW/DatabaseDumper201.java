@@ -33,13 +33,8 @@ public class DatabaseDumper201 extends DatabaseDumper {
             DatabaseMetaData md = this.getConnection().getMetaData();
             ResultSet rs = md.getTables(null, null, "%", VIEW_TYPES);
 
-            /*Statement stmt = getConnection().createStatement();
-            ResultSet rs1 = stmt.executeQuery("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_SCHEMA='LSH");*/
-            
             while (rs.next()) 
             {
-                /*result.add(rs1.getString(1));
-                tableNames.add(rs1.getString(1));*/
                 result.add(rs.getString("TABLE_NAME"));
                 tableNames.add(rs.getString("TABLE_NAME"));
             }
@@ -49,6 +44,7 @@ public class DatabaseDumper201 extends DatabaseDumper {
         {
             //TODO: handle exception
         }
+        
         System.out.println(result);
 
         return result;
@@ -89,23 +85,31 @@ public class DatabaseDumper201 extends DatabaseDumper {
         return result;
     }*/
 
-    public List<String> getViewNames() {
+    public List<String> getViewNames() 
+    {
         List<String> result = new ArrayList<>();
         String query = "SELECT name FROM sqlite_master WHERE type = 'view' AND sql LIKE '% FROM %tablename% WHERE %';";
         System.out.println("Showing the views");
-        try {
+
+        try 
+        {
             Statement stmt = super.getConnection().createStatement();
             ResultSet rs = stmt.executeQuery(query);
             System.out.println("Views in the current database: ");
             System.out.println(rs);
-            while (rs.next()) {
+            
+            while (rs.next()) 
+            {
                 System.out.print(rs.getString(1));
                 result.add(rs.getString(1));
                 System.out.println();
             }
-        } catch (Exception e) {
+        } 
+        catch (Exception e) 
+        {
             e.printStackTrace();
         }
+
         return result;
     }
 
@@ -257,19 +261,22 @@ public class DatabaseDumper201 extends DatabaseDumper {
     }
 
     @Override
-    public String getDDLForView(String viewName) {
+    public String getDDLForView(String viewName) 
+    {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public String getDumpString() {
+    public String getDumpString() 
+    {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public void dumpToFileName(String fileName) {
+    public void dumpToFileName(String fileName) 
+    {
         // TODO Auto-generated method stub
 
     }
@@ -288,7 +295,8 @@ public class DatabaseDumper201 extends DatabaseDumper {
     }
 
     @Override
-    public String getDatabaseIndexes() {
+    public String getDatabaseIndexes() 
+    {
         // TODO Auto-generated method stub
         return null;
     }
