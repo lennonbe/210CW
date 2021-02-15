@@ -112,28 +112,48 @@ public class DatabaseDumper201 extends DatabaseDumper {
     @Override
     public String getDDLForTable(String input) 
     {
+        String returnString = "";
         try 
         {
+            List<String> namesList = this.getTableNames();
             DatabaseMetaData md = this.getConnection().getMetaData();
-            for (String name : tableNames) 
+            returnString = "CREATE TABLE (";
+            for (String name : namesList) 
             {
-                System.out.println(name + "=" + input);
+                
                 if(name.equals(input))
                 {
+                    returnString += input + ") ";
+                    System.out.println(name + "=" + input);
                     //get that tables attributes and create the table
-                    ResultSet rs = md.getTables(input, null, null, null);
+                    //ResultSet rs = md.getTables(input, null, null, null);
+                    //System.out.println(rs);
+
+                    Statement stmt = super.getConnection().createStatement();
+                    ResultSet rs = stmt.executeQuery("SELECT * FROM heroes");
+
                     System.out.println(rs);
                     
                     ResultSetMetaData rsmd = rs.getMetaData();
                     int columnsNumber = rsmd.getColumnCount();
-                    while (rs.next()) {
-                        for (int i = 1; i <= columnsNumber; i++) {
-                            if (i > 1) System.out.print(",  ");
-                            String columnValue = rs.getString(i);
-                            System.out.print(columnValue + " " + rsmd.getColumnName(i));
+                    
+                    for (int i = 1; i <= columnsNumber; i++) 
+                    {
+                        
+                        returnString += rsmd.getColumnName(i);
+                        
+                        if (i == columnsNumber)
+                        {
+                            //do nothing
                         }
-                        System.out.println("");
+                        else
+                        {
+                            returnString += ",";
+                        }
+                            
                     }
+
+                    System.out.println(returnString);
                 }
             }            
         } 
@@ -142,12 +162,97 @@ public class DatabaseDumper201 extends DatabaseDumper {
             //TODO: handle exception
         }
 
-        return null;
+        return returnString;
     }
 
     @Override
-    public String getInsertsForTable(String tableName) {
-        // TODO Auto-generated method stub
+    public String getInsertsForTable(String input) 
+    {
+        try 
+        {
+            List<String> namesList = this.getTableNames();
+            DatabaseMetaData md = this.getConnection().getMetaData();
+            String insertInto = "INSERT INTO " + input + " (";
+            String values = " VALUES (";
+            String returnString = "";
+            String columnNames = "";
+            boolean gotColumnNames = false;
+
+            for (String name : namesList) 
+            {
+                if(name.equals(input))
+                {
+                    System.out.println(name + "=" + input);
+
+                    Statement stmt = super.getConnection().createStatement();
+                    ResultSet rs = stmt.executeQuery("SELECT * FROM " + input);
+                    
+                    ResultSetMetaData rsmd = rs.getMetaData();
+                    int columnsNumber = rsmd.getColumnCount();
+
+                    if(gotColumnNames == false)
+                    {
+                        //Get column names
+                        for (int i = 1; i <= columnsNumber; i++) 
+                        {
+                            columnNames += rsmd.getColumnName(i);
+                            
+                            if (i == columnsNumber)
+                            {
+                                columnNames += ")";
+                            }
+                            else
+                            {
+                                columnNames += ", ";
+                            }
+                                
+                        }
+    
+                        insertInto += columnNames;
+                        gotColumnNames = true;
+                        System.out.println(insertInto);
+                    }
+                    //Finished getting column names and no. and will no longer repeat this process in the loop
+
+                    
+                    //Use a second result set of the same data to loop thorugh
+                    ResultSet rs2 = stmt.executeQuery("SELECT * FROM " + input);
+                    ResultSetMetaData rsmd2 = rs2.getMetaData();
+                    int columnsNumber2 = rsmd2.getColumnCount();
+                    while (rs2.next()) 
+                    {
+                        returnString += insertInto; 
+                        //returnString += values;
+                        for (int i = 1; i <= columnsNumber2; i++) 
+                        {
+                            
+                            String columnValue = rs2.getString(i);
+                            values += columnValue;
+                            
+                            if (i == columnsNumber2)
+                            {
+                                values += ");\n";
+                                //insertInto += values;
+                            }
+                            else
+                            {
+                                values += ",";
+                            }
+                        }
+
+                        returnString += values;
+                        values = " VALUES (";
+                    }
+
+                    System.out.println(returnString);
+                }
+            }            
+        } 
+        catch (Exception e) 
+        {
+            //TODO: handle exception
+        }
+
         return null;
     }
 
@@ -174,8 +279,12 @@ public class DatabaseDumper201 extends DatabaseDumper {
     {
         // TODO Auto-generated method stub
         //this.getTableNames();
-        this.getViewNames();
+        //this.getViewNames();
         //this.getDDLForTable("heroes");
+        this.getInsertsForTable("heroes");
+        this.getInsertsForTable("planets");
+        this.getInsertsForTable("powers");
+        this.getInsertsForTable("missions");
     }
 
     @Override
