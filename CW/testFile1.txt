@@ -189,3 +189,4 @@ INSERT INTO missions (name, planet_name) VALUES ('Mission on non-existant planet
 
 Views create and inserts: 
 CREATE TABLE hw_view (hero_id INTEGER (2147483647),codename VARCHAR (2147483647),secretIdentity VARCHAR (2147483647),homeWorld_id INTEGER (2147483647));
+

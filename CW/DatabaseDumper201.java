@@ -53,8 +53,6 @@ public class DatabaseDumper201 extends DatabaseDumper
             //TODO: handle exception
         }
 
-        //System.out.println(result);
-
         return result;
     }
 
@@ -70,18 +68,14 @@ public class DatabaseDumper201 extends DatabaseDumper
 
             while (rs.next()) 
             {
-                //System.out.println("hi there");
                 result.add(rs.getString("TABLE_NAME"));
             }
         } 
         catch (Exception e) 
         {
             //TODO: handle exception
-            //System.out.println("exception");
         }
         
-        //System.out.println("Views are:");
-        //System.out.println(result);
 
         return result;
     }
@@ -104,12 +98,9 @@ public class DatabaseDumper201 extends DatabaseDumper
                 if(name.equals(input))
                 {
                     returnString += input + " (";
-                    //System.out.println(name + "=" + input);
 
                     Statement stmt = super.getConnection().createStatement();
                     ResultSet rs = stmt.executeQuery("SELECT * FROM " + input);
-
-                    //System.out.println(rs);
                     
                     ResultSetMetaData rsmd = rs.getMetaData();
                     int columnsNumber = rsmd.getColumnCount();
@@ -129,8 +120,6 @@ public class DatabaseDumper201 extends DatabaseDumper
                         }
                             
                     }
-
-                    //System.out.println(returnString);
                 }
             }            
         } 
@@ -176,8 +165,6 @@ public class DatabaseDumper201 extends DatabaseDumper
             {
                 if(name.equals(input))
                 {
-                    //System.out.println(name + "=" + input);
-
                     Statement stmt = super.getConnection().createStatement();
                     ResultSet rs = stmt.executeQuery("SELECT * FROM " + input);
                     
@@ -204,7 +191,6 @@ public class DatabaseDumper201 extends DatabaseDumper
     
                         insertInto += columnNames;
                         gotColumnNames = true;
-                        //System.out.println(insertInto);
                     }
                     //Finished getting column names and no. and will no longer repeat this process in the loop
 
@@ -216,7 +202,6 @@ public class DatabaseDumper201 extends DatabaseDumper
                     while (rs2.next()) 
                     {
                         returnString += insertInto; 
-                        //returnString += values;
                         for (int i = 1; i <= columnsNumber2; i++) 
                         {
                             
@@ -234,7 +219,6 @@ public class DatabaseDumper201 extends DatabaseDumper
                             if (i == columnsNumber2)
                             {
                                 values += ");\n";
-                                //insertInto += values;
                             }
                             else
                             {
@@ -245,8 +229,6 @@ public class DatabaseDumper201 extends DatabaseDumper
                         returnString += values;
                         values = " VALUES (";
                     }
-
-                    //System.out.println(returnString);
                 }
             }            
         } 
@@ -272,12 +254,9 @@ public class DatabaseDumper201 extends DatabaseDumper
                 if(name.equals(input))
                 {
                     returnString += input + "_view" + " (";
-                    //System.out.println(name + "=" + input);
 
                     Statement stmt = super.getConnection().createStatement();
                     ResultSet rs = stmt.executeQuery("SELECT * FROM " + input);
-
-                    //System.out.println(rs);
                     
                     ResultSetMetaData rsmd = rs.getMetaData();
                     int columnsNumber = rsmd.getColumnCount();
@@ -297,8 +276,6 @@ public class DatabaseDumper201 extends DatabaseDumper
                         }
                             
                     }
-
-                    //System.out.println(returnString);
                 }
             }            
         } 
@@ -330,6 +307,7 @@ public class DatabaseDumper201 extends DatabaseDumper
         for(String name : viewsList)
         {
             str += this.getDDLForView(name);
+            str += "\n";
             str += this.getInsertsForTable(name);
         }
 
