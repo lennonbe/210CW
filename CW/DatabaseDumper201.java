@@ -1,5 +1,7 @@
 import java.sql.*;
 import java.util.*;
+import java.io.*;
+import java.io.FileNotFoundException;
 
 /**
  * Class which needs to be implemented.  ONLY this class should be modified
@@ -51,7 +53,7 @@ public class DatabaseDumper201 extends DatabaseDumper
             //TODO: handle exception
         }
 
-        System.out.println(result);
+        //System.out.println(result);
 
         return result;
     }
@@ -68,55 +70,21 @@ public class DatabaseDumper201 extends DatabaseDumper
 
             while (rs.next()) 
             {
-                System.out.println("hi");
-                result.add(rs.getString(1));
+                //System.out.println("hi there");
+                result.add(rs.getString("TABLE_NAME"));
             }
         } 
         catch (Exception e) 
         {
             //TODO: handle exception
-            System.out.println("exception");
+            //System.out.println("exception");
         }
         
-        System.out.println("Views are:");
-        System.out.println(result);
+        //System.out.println("Views are:");
+        //System.out.println(result);
 
         return result;
     }
-
-    /**
-     * Method used to get the view names of the database.
-     */
-    /*public List<String> getViewNames() 
-    {
-        List<String> result = new ArrayList<>();
-        String query = "SELECT name FROM sqlite_master WHERE type = 'view' AND sql LIKE '% FROM %tablename% WHERE %';";
-        System.out.println("Showing the views");
-
-        try 
-        {
-            Statement stmt = super.getConnection().createStatement();
-            ResultSet rs = stmt.executeQuery(query);
-            System.out.println("Views in the current database: ");
-            System.out.println(rs);
-            
-            int i = 0;
-            while (rs.next()) 
-            {
-                System.out.println(i);
-                System.out.print(rs.getString(1));
-                result.add(rs.getString(1));
-                System.out.println(); 
-                i++;
-            }
-        } 
-        catch (Exception e) 
-        {
-            e.printStackTrace();
-        }
-
-        return result;
-    }*/
 
     /**
      * get the DDL which creates a table given a string as input which represents the table name.
@@ -136,12 +104,12 @@ public class DatabaseDumper201 extends DatabaseDumper
                 if(name.equals(input))
                 {
                     returnString += input + " (";
-                    System.out.println(name + "=" + input);
+                    //System.out.println(name + "=" + input);
 
                     Statement stmt = super.getConnection().createStatement();
                     ResultSet rs = stmt.executeQuery("SELECT * FROM " + input);
 
-                    System.out.println(rs);
+                    //System.out.println(rs);
                     
                     ResultSetMetaData rsmd = rs.getMetaData();
                     int columnsNumber = rsmd.getColumnCount();
@@ -149,11 +117,11 @@ public class DatabaseDumper201 extends DatabaseDumper
                     for (int i = 1; i <= columnsNumber; i++) 
                     {
                         
-                        returnString += rsmd.getColumnName(i) + " " + JDBCType.valueOf(rsmd.getColumnType(i));
+                        returnString += rsmd.getColumnName(i) + " " + JDBCType.valueOf(rsmd.getColumnType(i)) + " (" + rsmd.getColumnDisplaySize(i) + ")";
                         
                         if (i == columnsNumber)
                         {
-                            returnString += ")";
+                            returnString += ");";
                         }
                         else
                         {
@@ -162,7 +130,7 @@ public class DatabaseDumper201 extends DatabaseDumper
                             
                     }
 
-                    System.out.println(returnString);
+                    //System.out.println(returnString);
                 }
             }            
         } 
@@ -180,13 +148,13 @@ public class DatabaseDumper201 extends DatabaseDumper
     @Override
     public String getInsertsForTable(String input) 
     {
+        String returnString = "";
         try 
         {
             List<String> namesList = this.getTableNames();
             DatabaseMetaData md = this.getConnection().getMetaData();
             String insertInto = "INSERT INTO " + input + " (";
             String values = " VALUES (";
-            String returnString = "";
             String columnNames = "";
             boolean gotColumnNames = false;
 
@@ -194,7 +162,7 @@ public class DatabaseDumper201 extends DatabaseDumper
             {
                 if(name.equals(input))
                 {
-                    System.out.println(name + "=" + input);
+                    //System.out.println(name + "=" + input);
 
                     Statement stmt = super.getConnection().createStatement();
                     ResultSet rs = stmt.executeQuery("SELECT * FROM " + input);
@@ -256,7 +224,7 @@ public class DatabaseDumper201 extends DatabaseDumper
                         values = " VALUES (";
                     }
 
-                    System.out.println(returnString);
+                    //System.out.println(returnString);
                 }
             }            
         } 
@@ -265,21 +233,85 @@ public class DatabaseDumper201 extends DatabaseDumper
             //TODO: handle exception
         }
 
-        return null;
+        return returnString;
     }
 
     @Override
-    public String getDDLForView(String viewName) 
+    public String getDDLForView(String input) 
     {
-        // TODO Auto-generated method stub
-        return null;
+        String returnString = "";
+        try 
+        {
+            List<String> namesList = this.getViewNames();
+            DatabaseMetaData md = this.getConnection().getMetaData();
+            returnString = "CREATE TABLE ";
+            for (String name : namesList) 
+            {
+                if(name.equals(input))
+                {
+                    returnString += input + "_view" + " (";
+                    //System.out.println(name + "=" + input);
+
+                    Statement stmt = super.getConnection().createStatement();
+                    ResultSet rs = stmt.executeQuery("SELECT * FROM " + input);
+
+                    //System.out.println(rs);
+                    
+                    ResultSetMetaData rsmd = rs.getMetaData();
+                    int columnsNumber = rsmd.getColumnCount();
+                    
+                    for (int i = 1; i <= columnsNumber; i++) 
+                    {
+                        
+                        returnString += rsmd.getColumnName(i) + " " + JDBCType.valueOf(rsmd.getColumnType(i)) + " (" + rsmd.getColumnDisplaySize(i) + ")";
+                        
+                        if (i == columnsNumber)
+                        {
+                            returnString += ");";
+                        }
+                        else
+                        {
+                            returnString += ",";
+                        }
+                            
+                    }
+
+                    //System.out.println(returnString);
+                }
+            }            
+        } 
+        catch (Exception e) 
+        {
+            //TODO: handle exception
+        }
+
+        return returnString;
     }
 
     @Override
     public String getDumpString() 
     {
         // TODO Auto-generated method stub
-        return null;
+
+        String str = "Tables create and inserts: \n";
+
+        List<String> namesList = this.getTableNames();
+        for(String name : namesList)
+        {
+            str += this.getDDLForTable(name);
+            str += "\n";
+            str += this.getInsertsForTable(name);
+        }
+
+        str += "\nViews create and inserts: \n";
+        List<String> viewsList = this.getViewNames();
+        for(String name : viewsList)
+        {
+            str += this.getDDLForView(name);
+            str += this.getInsertsForTable(name);
+        }
+
+        return str;
     }
 
     @Override
@@ -287,22 +319,31 @@ public class DatabaseDumper201 extends DatabaseDumper
     {
         // TODO Auto-generated method stub
 
+        String file = fileName + ".txt";
+        try (PrintWriter out = new PrintWriter(file)) 
+        {
+            out.println(getDumpString());
+        }
+        catch (Exception e) 
+        {
+            System.out.println("EXCEPTION OCCURED IN: dumpToFileName()");
+        }
     }
 
     @Override
     public void dumpToSystemOut() 
     {
-        // TODO Auto-generated method stub
-        //this.getTableNames();
-        //this.getViewNames();
-        //this.getDDLForTable("heroes");
-        this.getInsertsForTable("heroes");
+        /*this.getInsertsForTable("heroes");
         this.getInsertsForTable("planets");
         this.getInsertsForTable("powers");
         this.getInsertsForTable("missions");
         this.getDDLForTable("heroes");
         this.getDDLForTable("planets");
         this.getViewNames();
+        this.getDDLForView("hw");*/
+
+        System.out.println(this.getDumpString());
+        this.dumpToFileName("testFile1");
     }
 
     @Override
