@@ -101,15 +101,23 @@ public class DatabaseDumper201 extends DatabaseDumper
 
                     DatabaseMetaData dbmd = super.getConnection().getMetaData();
                     ResultSet rs2 = dbmd.getColumns(null, null, name, null);
+                    ResultSet pk = dbmd.getPrimaryKeys(null, null, name);
+                    String pkString = pk.getString("COLUMN_NAME");
+                    String temp = "";
 
                     while(rs2.next())
                     {
+                        if (pkString.equals(rs2.getString("COLUMN_NAME")))
+                        {
+                            temp = rs2.getString("COLUMN_NAME");
+                        }
+
                         returnString += rs2.getString("COLUMN_NAME") + " " + rs2.getString("TYPE_NAME");
                         returnString += ",";
                     }
                     
                     returnString = returnString.substring(0, returnString.length() - 1); 
-                    returnString += ");";
+                    returnString += ", PRIMARY KEY(" + temp +"));";
                 }
             }            
         } 
@@ -237,13 +245,14 @@ public class DatabaseDumper201 extends DatabaseDumper
         try 
         {
             List<String> namesList = this.getViewNames();
+            System.out.println(namesList);
             DatabaseMetaData md = this.getConnection().getMetaData();
             returnString = "CREATE TABLE ";
             for (String name : namesList) 
             {
                 if(name.equals(input))
                 {
-                    returnString += input + " (";
+                    returnString += input + "_view (";
                     
                     DatabaseMetaData dbmd = super.getConnection().getMetaData();
                     ResultSet rs2 = dbmd.getColumns(null, null, name, null);
