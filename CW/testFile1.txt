@@ -1,5 +1,5 @@
 Tables create and inserts: 
-CREATE TABLE planets (planet_id INTEGER (2147483647),name VARCHAR (2147483647),popvalue INTEGER (2147483647));
+CREATE TABLE planets (planet_id INTEGER,name VARCHAR(15),popvalue INTEGER);
 INSERT INTO planets (planet_id, name, popvalue) VALUES (1,'Antares',17);
 INSERT INTO planets (planet_id, name, popvalue) VALUES (2,'Bgztl',8);
 INSERT INTO planets (planet_id, name, popvalue) VALUES (3,'Bismoll',27);
@@ -26,7 +26,7 @@ INSERT INTO planets (planet_id, name, popvalue) VALUES (23,'Trom',27);
 INSERT INTO planets (planet_id, name, popvalue) VALUES (24,'Winath',8);
 INSERT INTO planets (planet_id, name, popvalue) VALUES (25,'Xanthu','\N');
 INSERT INTO planets (planet_id, name, popvalue) VALUES (26,'Zoon',34);
-CREATE TABLE heroes (hero_id INTEGER (2147483647),codename VARCHAR (2147483647),secretIdentity VARCHAR (2147483647),homeWorld_id INTEGER (2147483647));
+CREATE TABLE heroes (hero_id INTEGER,codename VARCHAR(30),secretIdentity VARCHAR(30),homeWorld_id INTEGER);
 INSERT INTO heroes (hero_id, codename, secretIdentity, homeWorld_id) VALUES (1,'Cosmic Boy','Rokk Krinn ',4);
 INSERT INTO heroes (hero_id, codename, secretIdentity, homeWorld_id) VALUES (2,'Lightning Lad ','Garth Ranzz ',24);
 INSERT INTO heroes (hero_id, codename, secretIdentity, homeWorld_id) VALUES (3,'Saturn Girl ','Imra Ardeen ',22);
@@ -67,7 +67,7 @@ INSERT INTO heroes (hero_id, codename, secretIdentity, homeWorld_id) VALUES (37,
 INSERT INTO heroes (hero_id, codename, secretIdentity, homeWorld_id) VALUES (38,'Quislet ','(an unpronounceable glyph) ',20);
 INSERT INTO heroes (hero_id, codename, secretIdentity, homeWorld_id) VALUES (39,'Tellus ','Ganglios ',11);
 INSERT INTO heroes (hero_id, codename, secretIdentity, homeWorld_id) VALUES (40,'Hero on non-existant planet','Nobody',473);
-CREATE TABLE powers (hero_id INTEGER (2147483647),description VARCHAR (2147483647));
+CREATE TABLE powers (hero_id INTEGER,description VARCHAR (100));
 INSERT INTO powers (hero_id, description) VALUES (1,'Magnetism manipulation');
 INSERT INTO powers (hero_id, description) VALUES (1,'control and generation of magnetic fields');
 INSERT INTO powers (hero_id, description) VALUES (2,'Electrical manipulation');
@@ -181,12 +181,12 @@ INSERT INTO powers (hero_id, description) VALUES (37,'Cold manipulation');
 INSERT INTO powers (hero_id, description) VALUES (37,'ability to absorb heat and produce cold');
 INSERT INTO powers (hero_id, description) VALUES (39,'Telepathy');
 INSERT INTO powers (hero_id, description) VALUES (39,'telekinesis');
-CREATE TABLE missions (name VARCHAR (2147483647),planet_name VARCHAR (2147483647));
+CREATE TABLE missions (name VARCHAR (100),planet_name VARCHAR (15));
 INSERT INTO missions (name, planet_name) VALUES ('Darkseid','Apocalypse');
 INSERT INTO missions (name, planet_name) VALUES ('Earth War','Earth');
 INSERT INTO missions (name, planet_name) VALUES ('Planet Kidnap','Daxam');
 INSERT INTO missions (name, planet_name) VALUES ('Mission on non-existant planet','Zorgorn');
 
 Views create and inserts: 
-CREATE TABLE hw_view (hero_id INTEGER (2147483647),codename VARCHAR (2147483647),secretIdentity VARCHAR (2147483647),homeWorld_id INTEGER (2147483647));
+CREATE TABLE hw (hero_id INTEGER,codename VARCHAR(30),secretIdentity VARCHAR(30),homeWorld_id INTEGER);
 

@@ -99,27 +99,17 @@ public class DatabaseDumper201 extends DatabaseDumper
                 {
                     returnString += input + " (";
 
-                    Statement stmt = super.getConnection().createStatement();
-                    ResultSet rs = stmt.executeQuery("SELECT * FROM " + input);
-                    
-                    ResultSetMetaData rsmd = rs.getMetaData();
-                    int columnsNumber = rsmd.getColumnCount();
-                    
-                    for (int i = 1; i <= columnsNumber; i++) 
-                    {
-                        
-                        returnString += rsmd.getColumnName(i) + " " + JDBCType.valueOf(rsmd.getColumnType(i)) + " (" + rsmd.getColumnDisplaySize(i) + ")";
+                    DatabaseMetaData dbmd = super.getConnection().getMetaData();
+                    ResultSet rs2 = dbmd.getColumns(null, null, name, null);
 
-                        if (i == columnsNumber)
-                        {
-                            returnString += ");";
-                        }
-                        else
-                        {
-                            returnString += ",";
-                        }
-                            
+                    while(rs2.next())
+                    {
+                        returnString += rs2.getString("COLUMN_NAME") + " " + rs2.getString("TYPE_NAME");
+                        returnString += ",";
                     }
+                    
+                    returnString = returnString.substring(0, returnString.length() - 1); 
+                    returnString += ");";
                 }
             }            
         } 
@@ -253,29 +243,19 @@ public class DatabaseDumper201 extends DatabaseDumper
             {
                 if(name.equals(input))
                 {
-                    returnString += input + "_view" + " (";
+                    returnString += input + " (";
+                    
+                    DatabaseMetaData dbmd = super.getConnection().getMetaData();
+                    ResultSet rs2 = dbmd.getColumns(null, null, name, null);
 
-                    Statement stmt = super.getConnection().createStatement();
-                    ResultSet rs = stmt.executeQuery("SELECT * FROM " + input);
-                    
-                    ResultSetMetaData rsmd = rs.getMetaData();
-                    int columnsNumber = rsmd.getColumnCount();
-                    
-                    for (int i = 1; i <= columnsNumber; i++) 
+                    while(rs2.next())
                     {
-                        
-                        returnString += rsmd.getColumnName(i) + " " + JDBCType.valueOf(rsmd.getColumnType(i)) + " (" + rsmd.getColumnDisplaySize(i) + ")";
-                        
-                        if (i == columnsNumber)
-                        {
-                            returnString += ");";
-                        }
-                        else
-                        {
-                            returnString += ",";
-                        }
-                            
+                        returnString += rs2.getString("COLUMN_NAME") + " " + rs2.getString("TYPE_NAME");
+                        returnString += ",";
                     }
+                    
+                    returnString = returnString.substring(0, returnString.length() - 1); 
+                    returnString += ");";
                 }
             }            
         } 
