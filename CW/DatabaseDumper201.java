@@ -4,24 +4,30 @@ import java.util.*;
 /**
  * Class which needs to be implemented.  ONLY this class should be modified
  */
-public class DatabaseDumper201 extends DatabaseDumper {
-  
+public class DatabaseDumper201 extends DatabaseDumper 
+{  
     /**
      * 
      * @param c connection which the dumper should use
      * @param type a string naming the type of database being connected to e.g. sqlite
      */
-    public DatabaseDumper201(Connection c,String type) {
+    public DatabaseDumper201(Connection c,String type) 
+    {
         super(c,type);
     }
+
     /**
      * 
      * @param c connection to a database which will have a sql dump create for
      */
-    public DatabaseDumper201(Connection c) {
+    public DatabaseDumper201(Connection c) 
+    {
         super(c,c.getClass().getCanonicalName());
     }
 
+    /**
+     * Method used to get the names of the different tables in the database.
+     */
     List<String> tableNames = new ArrayList<>();
     public List<String> getTableNames()
     {
@@ -44,7 +50,7 @@ public class DatabaseDumper201 extends DatabaseDumper {
         {
             //TODO: handle exception
         }
-        
+
         System.out.println(result);
 
         return result;
@@ -85,6 +91,9 @@ public class DatabaseDumper201 extends DatabaseDumper {
         return result;
     }*/
 
+    /**
+     * Method used to get the view names of the database.
+     */
     public List<String> getViewNames() 
     {
         List<String> result = new ArrayList<>();
@@ -98,11 +107,14 @@ public class DatabaseDumper201 extends DatabaseDumper {
             System.out.println("Views in the current database: ");
             System.out.println(rs);
             
+            int i = 0;
             while (rs.next()) 
             {
+                System.out.println(i);
                 System.out.print(rs.getString(1));
                 result.add(rs.getString(1));
-                System.out.println();
+                System.out.println(); 
+                i++;
             }
         } 
         catch (Exception e) 
@@ -113,6 +125,9 @@ public class DatabaseDumper201 extends DatabaseDumper {
         return result;
     }
 
+    /**
+     * get the DDL which creates a table given a string as input which represents the table name.
+     */
     @Override
     public String getDDLForTable(String input) 
     {
@@ -169,6 +184,9 @@ public class DatabaseDumper201 extends DatabaseDumper {
         return returnString;
     }
 
+    /**
+     * Get the inserts needed to build the table based of a string input which represents the table name
+     */
     @Override
     public String getInsertsForTable(String input) 
     {
@@ -214,7 +232,7 @@ public class DatabaseDumper201 extends DatabaseDumper {
     
                         insertInto += columnNames;
                         gotColumnNames = true;
-                        System.out.println(insertInto);
+                        //System.out.println(insertInto);
                     }
                     //Finished getting column names and no. and will no longer repeat this process in the loop
 
@@ -292,6 +310,7 @@ public class DatabaseDumper201 extends DatabaseDumper {
         this.getInsertsForTable("planets");
         this.getInsertsForTable("powers");
         this.getInsertsForTable("missions");
+        this.getViewNames();
     }
 
     @Override
