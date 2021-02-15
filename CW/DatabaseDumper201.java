@@ -118,7 +118,7 @@ public class DatabaseDumper201 extends DatabaseDumper
                     {
                         
                         returnString += rsmd.getColumnName(i) + " " + JDBCType.valueOf(rsmd.getColumnType(i)) + " (" + rsmd.getColumnDisplaySize(i) + ")";
-                        
+
                         if (i == columnsNumber)
                         {
                             returnString += ");";
@@ -141,6 +141,20 @@ public class DatabaseDumper201 extends DatabaseDumper
 
         return returnString;
     }
+
+    public boolean isNumeric(String str) 
+    { 
+        try 
+        {  
+          Integer.parseInt(str);  
+          return true;
+        } 
+        catch(NumberFormatException e)
+        {  
+          return false;  
+        }  
+
+      }
 
     /**
      * Get the inserts needed to build the table based of a string input which represents the table name
@@ -207,7 +221,15 @@ public class DatabaseDumper201 extends DatabaseDumper
                         {
                             
                             String columnValue = rs2.getString(i);
-                            values += "'" + columnValue + "'";
+
+                            if(this.isNumeric(columnValue) == true)
+                            {
+                                values += columnValue;
+                            }
+                            else
+                            {
+                                values += "'" + columnValue + "'";
+                            }
                             
                             if (i == columnsNumber2)
                             {
