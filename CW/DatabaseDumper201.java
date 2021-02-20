@@ -108,7 +108,6 @@ public class DatabaseDumper201 extends DatabaseDumper
                         returnString += "'" + rs2.getString("COLUMN_NAME")+ "'" + " " + rs2.getString("TYPE_NAME");
                         returnString += ",";
                     }
-                    //returnString = returnString.substring(0, returnString.length() - 1); 
                     
                     //Building the PRIMARY KEY string
                     ResultSet pk = dbmd.getPrimaryKeys(null, null, name);
@@ -117,7 +116,6 @@ public class DatabaseDumper201 extends DatabaseDumper
                     {
                         temp += "'" + pk.getString("COLUMN_NAME") + "'" + ", ";
                     }
-                    //temp = temp.substring(0, temp.length() - 2); 
                     
                     //Building the FOREIGN KEYS string
                     ResultSet fk = dbmd.getImportedKeys(null, null, name);
@@ -126,7 +124,6 @@ public class DatabaseDumper201 extends DatabaseDumper
                     {
                         temp2 += "FOREIGN KEY (" + "'" + fk.getString("FKCOLUMN_NAME") + "'" +") REFERENCES " + "'" +fk.getString("PKTABLE_NAME") + "'" + "(" + "'" +fk.getString("PKCOLUMN_NAME") + "'" +"),";
                     } 
-                    //temp2 = temp2.substring(0, temp2.length() - 1);
                     
                     //Final string to be returned trimmed
                     if(temp != "" && temp2 != "")
@@ -294,7 +291,7 @@ public class DatabaseDumper201 extends DatabaseDumper
 
                     while(rs2.next())
                     {
-                        returnString += rs2.getString("COLUMN_NAME") + " " + rs2.getString("TYPE_NAME");
+                        returnString += "'" + rs2.getString("COLUMN_NAME") + "' " + rs2.getString("TYPE_NAME");
                         returnString += ",";
                     }
                     
@@ -335,6 +332,9 @@ public class DatabaseDumper201 extends DatabaseDumper
             str += this.getInsertsForTable(name);
         }
 
+        str += "\nIndexes of DB: \n";
+        str += this.getDatabaseIndexes();
+
         return str;
     }
 
@@ -365,8 +365,45 @@ public class DatabaseDumper201 extends DatabaseDumper
     @Override
     public String getDatabaseIndexes() 
     {
-        // TODO Auto-generated method stub
-        return null;
+        String returnString = "";
+        try 
+        {
+            DatabaseMetaData md = this.getConnection().getMetaData();
+            List<String> namesList = this.getTableNames();
+            
+            for (String name : namesList)
+            {
+                ResultSet rs = md.getIndexInfo(null, null, name, true, false);
+                
+                while(rs.next())
+                {
+                    String tempString = "";
+                    String temp = rs.getString("ASC_OR_DESC");
+                    
+                    if(temp == "A")
+                    {
+                        tempString = "CREATE INDEX " + rs.getString("INDEX_NAME") + " ON " + rs.getString("TABLE_NAME") + " ("  + rs.getString("COLUMN_NAME") + " ASC);\n";   
+                    }
+                    else if(temp == "D")
+                    {
+                        tempString = "CREATE INDEX " + rs.getString("INDEX_NAME") + " ON " + rs.getString("TABLE_NAME") + " ("  + rs.getString("COLUMN_NAME") + " DESC);\n";   
+                    }
+                    else if(temp == null)
+                    {
+                        tempString = "CREATE INDEX " + rs.getString("INDEX_NAME") + " ON " + rs.getString("TABLE_NAME") + " ("  + rs.getString("COLUMN_NAME") + ");\n";   
+                    }
+
+                    returnString += tempString;
+                }
+                
+            }
+        } 
+        catch (Exception e) 
+        {
+            //TODO: handle exception
+        }
+
+        return returnString;
     }
 
 }
