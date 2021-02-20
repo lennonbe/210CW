@@ -107,16 +107,18 @@ public class DatabaseDumper201 extends DatabaseDumper
 
                     while(rs2.next())
                     {
-                        if (pkString.equals(rs2.getString("COLUMN_NAME")))
-                        {
-                            temp = rs2.getString("COLUMN_NAME");
-                        }
-
                         returnString += rs2.getString("COLUMN_NAME") + " " + rs2.getString("TYPE_NAME");
                         returnString += ",";
                     }
-                    
                     returnString = returnString.substring(0, returnString.length() - 1); 
+
+                    //Building the PRIMARY KEY string
+                    while(pk.next())
+                    {
+                        temp += pk.getString("COLUMN_NAME") + ", ";
+                    }
+                    temp = temp.substring(0, temp.length() - 2); 
+                    
                     returnString += ", PRIMARY KEY(" + temp +"));";
                 }
             }            
@@ -307,7 +309,7 @@ public class DatabaseDumper201 extends DatabaseDumper
     public void dumpToFileName(String fileName) 
     {
         // TODO Auto-generated method stub
-
+        
         String file = fileName + ".txt";
         try (PrintWriter out = new PrintWriter(file)) 
         {
@@ -322,15 +324,6 @@ public class DatabaseDumper201 extends DatabaseDumper
     @Override
     public void dumpToSystemOut() 
     {
-        /*this.getInsertsForTable("heroes");
-        this.getInsertsForTable("planets");
-        this.getInsertsForTable("powers");
-        this.getInsertsForTable("missions");
-        this.getDDLForTable("heroes");
-        this.getDDLForTable("planets");
-        this.getViewNames();
-        this.getDDLForView("hw");*/
-
         System.out.println(this.getDumpString());
         this.dumpToFileName("testFile1");
     }

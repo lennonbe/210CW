@@ -67,7 +67,7 @@ INSERT INTO heroes (hero_id, codename, secretIdentity, homeWorld_id) VALUES (37,
 INSERT INTO heroes (hero_id, codename, secretIdentity, homeWorld_id) VALUES (38,'Quislet ','(an unpronounceable glyph) ',20);
 INSERT INTO heroes (hero_id, codename, secretIdentity, homeWorld_id) VALUES (39,'Tellus ','Ganglios ',11);
 INSERT INTO heroes (hero_id, codename, secretIdentity, homeWorld_id) VALUES (40,'Hero on non-existant planet','Nobody',473);
-CREATE TABLE powers (hero_id INTEGER,description VARCHAR (100), PRIMARY KEY(hero_id));
+CREATE TABLE powers (hero_id INTEGER,description VARCHAR (100), PRIMARY KEY(hero_id, description));
 INSERT INTO powers (hero_id, description) VALUES (1,'Magnetism manipulation');
 INSERT INTO powers (hero_id, description) VALUES (1,'control and generation of magnetic fields');
 INSERT INTO powers (hero_id, description) VALUES (2,'Electrical manipulation');
