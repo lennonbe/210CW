@@ -94,38 +94,71 @@ public class DatabaseDumper201 extends DatabaseDumper
             returnString = "CREATE TABLE ";
             for (String name : namesList) 
             {
-                
                 if(name.equals(input))
                 {
                     returnString += input + " (";
 
                     DatabaseMetaData dbmd = super.getConnection().getMetaData();
                     ResultSet rs2 = dbmd.getColumns(null, null, name, null);
-                    ResultSet pk = dbmd.getPrimaryKeys(null, null, name);
-                    String pkString = pk.getString("COLUMN_NAME");
-                    String temp = "";
-
+                    
+                    
+                    //Fetching needed column data and types
                     while(rs2.next())
                     {
                         returnString += rs2.getString("COLUMN_NAME") + " " + rs2.getString("TYPE_NAME");
                         returnString += ",";
                     }
-                    returnString = returnString.substring(0, returnString.length() - 1); 
-
+                    //returnString = returnString.substring(0, returnString.length() - 1); 
+                    
                     //Building the PRIMARY KEY string
+                    ResultSet pk = dbmd.getPrimaryKeys(null, null, name);
+                    String temp = "";
                     while(pk.next())
                     {
                         temp += pk.getString("COLUMN_NAME") + ", ";
                     }
-                    temp = temp.substring(0, temp.length() - 2); 
+                    //temp = temp.substring(0, temp.length() - 2); 
                     
-                    returnString += ", PRIMARY KEY(" + temp +"));";
+                    //Building the FOREIGN KEYS string
+                    ResultSet fk = dbmd.getImportedKeys(null, null, name);
+                    String temp2 = "";
+                    while(fk.next())
+                    {
+                        temp2 += "FOREIGN KEY (" + fk.getString("FKCOLUMN_NAME") +") REFERENCES " + fk.getString("PKTABLE_NAME") + "(" + fk.getString("PKCOLUMN_NAME") + "),";
+                    } 
+                    //temp2 = temp2.substring(0, temp2.length() - 1);
+                    
+                    //Final string to be returned trimmed
+                    if(temp != "" && temp2 != "")
+                    {
+                        returnString = returnString.substring(0, returnString.length() - 1);
+                        temp = temp.substring(0, temp.length() - 2); 
+                        temp2 = temp2.substring(0, temp2.length() - 1); 
+                        returnString += ", PRIMARY KEY(" + temp +")," + temp2 +");";
+                    }
+                    else if(temp == "" && temp2 == "")
+                    {
+                        returnString = returnString.substring(0, returnString.length() - 1);
+                        returnString += ");";
+                    }
+                    else if(temp == "" && temp2 != "") 
+                    {
+                        returnString = returnString.substring(0, returnString.length() - 1);
+                        temp2 = temp2.substring(0, temp2.length() - 1); 
+                        returnString += ", PRIMARY KEY(" + temp +"));";
+                    }
+                    else if(temp != "" && temp2 == "")
+                    {
+                        returnString = returnString.substring(0, returnString.length() - 1);
+                        temp = temp.substring(0, temp.length() - 2); 
+                        returnString += ", PRIMARY KEY(" + temp +"));";
+                    }
                 }
             }            
         } 
         catch (Exception e) 
         {
-            //TODO: handle exception
+            System.out.println(e);
         }
 
         return returnString;
@@ -325,7 +358,8 @@ public class DatabaseDumper201 extends DatabaseDumper
     public void dumpToSystemOut() 
     {
         System.out.println(this.getDumpString());
-        this.dumpToFileName("testFile1");
+        //this.dumpToFileName("testFile1");
+        //getDDLForTable("heroes");
     }
 
     @Override

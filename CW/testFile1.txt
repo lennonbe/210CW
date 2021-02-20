@@ -1,5 +1,5 @@
 Tables create and inserts: 
-CREATE TABLE planets (planet_id INTEGER,name VARCHAR(15),popvalue INTEGER, PRIMARY KEY(planet_id));
+CREATE TABLE planets (planet_id INTEGER,name VARCHAR(15),popvalue INTEGER, PRIMARY KEY(planet_id),FOREIGN KEY (homeWorld_id) REFERENCES planets(planet_id));
 INSERT INTO planets (planet_id, name, popvalue) VALUES (1,'Antares',17);
 INSERT INTO planets (planet_id, name, popvalue) VALUES (2,'Bgztl',8);
 INSERT INTO planets (planet_id, name, popvalue) VALUES (3,'Bismoll',27);
@@ -26,7 +26,7 @@ INSERT INTO planets (planet_id, name, popvalue) VALUES (23,'Trom',27);
 INSERT INTO planets (planet_id, name, popvalue) VALUES (24,'Winath',8);
 INSERT INTO planets (planet_id, name, popvalue) VALUES (25,'Xanthu','\N');
 INSERT INTO planets (planet_id, name, popvalue) VALUES (26,'Zoon',34);
-CREATE TABLE heroes (hero_id INTEGER,codename VARCHAR(30),secretIdentity VARCHAR(30),homeWorld_id INTEGER, PRIMARY KEY(hero_id));
+CREATE TABLE heroes (hero_id INTEGER,codename VARCHAR(30),secretIdentity VARCHAR(30),homeWorld_id INTEGER,
 INSERT INTO heroes (hero_id, codename, secretIdentity, homeWorld_id) VALUES (1,'Cosmic Boy','Rokk Krinn ',4);
 INSERT INTO heroes (hero_id, codename, secretIdentity, homeWorld_id) VALUES (2,'Lightning Lad ','Garth Ranzz ',24);
 INSERT INTO heroes (hero_id, codename, secretIdentity, homeWorld_id) VALUES (3,'Saturn Girl ','Imra Ardeen ',22);
