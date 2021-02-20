@@ -105,7 +105,7 @@ public class DatabaseDumper201 extends DatabaseDumper
                     //Fetching needed column data and types
                     while(rs2.next())
                     {
-                        returnString += rs2.getString("COLUMN_NAME") + " " + rs2.getString("TYPE_NAME");
+                        returnString += "'" + rs2.getString("COLUMN_NAME")+ "'" + " " + rs2.getString("TYPE_NAME");
                         returnString += ",";
                     }
                     //returnString = returnString.substring(0, returnString.length() - 1); 
@@ -115,7 +115,7 @@ public class DatabaseDumper201 extends DatabaseDumper
                     String temp = "";
                     while(pk.next())
                     {
-                        temp += pk.getString("COLUMN_NAME") + ", ";
+                        temp += "'" + pk.getString("COLUMN_NAME") + "'" + ", ";
                     }
                     //temp = temp.substring(0, temp.length() - 2); 
                     
@@ -124,7 +124,7 @@ public class DatabaseDumper201 extends DatabaseDumper
                     String temp2 = "";
                     while(fk.next())
                     {
-                        temp2 += "FOREIGN KEY (" + fk.getString("FKCOLUMN_NAME") +") REFERENCES " + fk.getString("PKTABLE_NAME") + "(" + fk.getString("PKCOLUMN_NAME") + "),";
+                        temp2 += "FOREIGN KEY (" + "'" + fk.getString("FKCOLUMN_NAME") + "'" +") REFERENCES " + "'" +fk.getString("PKTABLE_NAME") + "'" + "(" + "'" +fk.getString("PKCOLUMN_NAME") + "'" +"),";
                     } 
                     //temp2 = temp2.substring(0, temp2.length() - 1);
                     
