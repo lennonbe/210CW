@@ -277,7 +277,7 @@ public class DatabaseDumper201 extends DatabaseDumper
         try 
         {
             List<String> namesList = this.getViewNames();
-            System.out.println(namesList);
+            //System.out.println(namesList);
             DatabaseMetaData md = this.getConnection().getMetaData();
             returnString = "CREATE TABLE ";
             for (String name : namesList) 
@@ -358,7 +358,7 @@ public class DatabaseDumper201 extends DatabaseDumper
     public void dumpToSystemOut() 
     {
         System.out.println(this.getDumpString());
-        //this.dumpToFileName("testFile1");
+        this.dumpToFileName("testFile1");
         //getDDLForTable("heroes");
     }
 
