@@ -122,7 +122,7 @@ public class DatabaseDumper201 extends DatabaseDumper
                     String temp2 = "";
                     while(fk.next())
                     {
-                        temp2 += "FOREIGN KEY (" + "'" + fk.getString("FKCOLUMN_NAME") + "'" +") REFERENCES " + "'" +fk.getString("PKTABLE_NAME") + "'" + "(" + "'" +fk.getString("PKCOLUMN_NAME") + "'" +"),";
+                        temp2 += " FOREIGN KEY (" + "'" + fk.getString("FKCOLUMN_NAME") + "'" +") REFERENCES " + "'" +fk.getString("PKTABLE_NAME") + "'" + "(" + "'" +fk.getString("PKCOLUMN_NAME") + "'" +"),";
                     } 
                     
                     //Final string to be returned trimmed
@@ -338,6 +338,32 @@ public class DatabaseDumper201 extends DatabaseDumper
         return str;
     }
 
+    public List<String> listSorter(List<String> input)
+    {
+        List<String> namesList = this.getTableNames();
+        int index = 0;
+        for(String name : namesList)
+        {
+            String str = this.getDDLForTable(name);
+
+            int index2 = 0;
+            for(String name2 : namesList)
+            {
+                if(str.contains(name2) && !name.equals(name2) && index2 > index)
+                {
+                    namesList.set(index, name2);
+                    namesList.set(index2, name);
+                }
+
+                index2++;
+            }
+
+            index++;
+        }
+
+        return namesList;
+    }
+
     @Override
     public void dumpToFileName(String fileName) 
     {
@@ -360,6 +386,30 @@ public class DatabaseDumper201 extends DatabaseDumper
         System.out.println(this.getDumpString());
         this.dumpToFileName("testFile1");
         //getDDLForTable("heroes");
+
+        List<String> namesList = this.getTableNames();
+        String str = "";
+        for(String name : namesList)
+        {
+            str += this.getDDLForTable(name);
+            str += "\n";
+            //str += this.getInsertsForTable(name);
+        }
+
+        System.out.println("\nAll create statements:\n");
+        System.out.println(str);
+
+        namesList = this.listSorter(namesList);
+        str = "";
+        for(String name : namesList)
+        {
+            str += this.getDDLForTable(name);
+            str += "\n";
+            //str += this.getInsertsForTable(name);
+        }
+
+        System.out.println("\nAll create statements SORTED:\n");
+        System.out.println(str);
     }
 
     @Override
