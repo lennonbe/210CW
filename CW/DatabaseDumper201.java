@@ -105,7 +105,7 @@ public class DatabaseDumper201 extends DatabaseDumper
                     //Fetching needed column data and types
                     while(rs2.next())
                     {
-                        returnString += "'" + rs2.getString("COLUMN_NAME")+ "'" + " " + rs2.getString("TYPE_NAME");
+                        returnString += rs2.getString("COLUMN_NAME")+ " " + rs2.getString("TYPE_NAME");
                         returnString += ",";
                     }
                     
@@ -114,7 +114,7 @@ public class DatabaseDumper201 extends DatabaseDumper
                     String temp = "";
                     while(pk.next())
                     {
-                        temp += "'" + pk.getString("COLUMN_NAME") + "'" + ", ";
+                        temp += pk.getString("COLUMN_NAME") + ", ";
                     }
                     
                     //Building the FOREIGN KEYS string
@@ -122,7 +122,7 @@ public class DatabaseDumper201 extends DatabaseDumper
                     String temp2 = "";
                     while(fk.next())
                     {
-                        temp2 += " FOREIGN KEY (" + "'" + fk.getString("FKCOLUMN_NAME") + "'" +") REFERENCES " + "'" +fk.getString("PKTABLE_NAME") + "'" + "(" + "'" +fk.getString("PKCOLUMN_NAME") + "'" +"),";
+                        temp2 += " FOREIGN KEY ("  + fk.getString("FKCOLUMN_NAME") +") REFERENCES " + fk.getString("PKTABLE_NAME") + "(" +fk.getString("PKCOLUMN_NAME") +"),";
                     } 
                     
                     //Final string to be returned trimmed
@@ -312,8 +312,7 @@ public class DatabaseDumper201 extends DatabaseDumper
     public String getDumpString() 
     {
         // TODO Auto-generated method stub
-
-        String str = "Tables create and inserts: \n";
+        String str = "--Tables create and inserts: \n";
 
         List<String> namesList = this.getTableNames();
         for(String name : namesList)
@@ -323,7 +322,7 @@ public class DatabaseDumper201 extends DatabaseDumper
             str += this.getInsertsForTable(name);
         }
 
-        str += "\nViews create and inserts: \n";
+        str += "\n--Views create and inserts: \n";
         List<String> viewsList = this.getViewNames();
         for(String name : viewsList)
         {
@@ -332,7 +331,7 @@ public class DatabaseDumper201 extends DatabaseDumper
             str += this.getInsertsForTable(name);
         }
 
-        str += "\nIndexes of DB: \n";
+        str += "\n--Indexes of DB: \n";
         str += this.getDatabaseIndexes();
 
         return str;
@@ -341,6 +340,7 @@ public class DatabaseDumper201 extends DatabaseDumper
     public List<String> listSorter(List<String> input)
     {
         List<String> namesList = this.getTableNames();
+        
         int index = 0;
         for(String name : namesList)
         {
@@ -385,7 +385,6 @@ public class DatabaseDumper201 extends DatabaseDumper
     {
         System.out.println(this.getDumpString());
         this.dumpToFileName("testFile1");
-        //getDDLForTable("heroes");
 
         List<String> namesList = this.getTableNames();
         String str = "";
@@ -432,15 +431,15 @@ public class DatabaseDumper201 extends DatabaseDumper
                     
                     if(temp == "A")
                     {
-                        tempString = "CREATE INDEX " + rs.getString("INDEX_NAME") + " ON " + rs.getString("TABLE_NAME") + " ("  + rs.getString("COLUMN_NAME") + " ASC);\n";   
+                        tempString = "CREATE INDEX '" + rs.getString("INDEX_NAME") + "' ON " + rs.getString("TABLE_NAME") + " ("  + rs.getString("COLUMN_NAME") + " ASC);\n";   
                     }
                     else if(temp == "D")
                     {
-                        tempString = "CREATE INDEX " + rs.getString("INDEX_NAME") + " ON " + rs.getString("TABLE_NAME") + " ("  + rs.getString("COLUMN_NAME") + " DESC);\n";   
+                        tempString = "CREATE INDEX '" + rs.getString("INDEX_NAME") + "' ON " + rs.getString("TABLE_NAME") + " ("  + rs.getString("COLUMN_NAME") + " DESC);\n";   
                     }
                     else if(temp == null)
                     {
-                        tempString = "CREATE INDEX " + rs.getString("INDEX_NAME") + " ON " + rs.getString("TABLE_NAME") + " ("  + rs.getString("COLUMN_NAME") + ");\n";   
+                        tempString = "CREATE INDEX '" + rs.getString("INDEX_NAME") + "' ON " + rs.getString("TABLE_NAME") + " ("  + rs.getString("COLUMN_NAME") + ");\n";   
                     }
 
                     returnString += tempString;
