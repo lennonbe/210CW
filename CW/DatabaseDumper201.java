@@ -81,6 +81,89 @@ public class DatabaseDumper201 extends DatabaseDumper
     }
 
     /**
+     * Cleans up the corner case in which there are primes in an attribute or column name.
+     * @param input
+     * @return
+     */
+    public String cleanUpPrimes(String input)
+    {
+        String returnString = input;
+
+        if(returnString.indexOf("'") != -1)
+        {
+            returnString = returnString.replace("'", "\"");
+        }
+
+        return returnString;
+    }
+
+    /**
+     * Allows to check if foreign key constraints are broken
+     * @param foreignKeyRS
+     * @param value
+     * @return
+     */
+    public boolean foreignKeyConstraintsBroken(ResultSet foreignKeyRS, String value)
+    {
+        boolean returnBool = true;
+        try 
+        {
+            Statement stmt = super.getConnection().createStatement();
+            ResultSet rs2 = stmt.executeQuery("SELECT * FROM " + foreignKeyRS.getString("PKTABLE_NAME"));
+    
+            int columnNumber = 	rs2.findColumn(foreignKeyRS.getString("PKCOLUMN_NAME"));
+            while (rs2.next()) 
+            {          
+                String columnValue = rs2.getString(columnNumber);
+
+                if(columnValue.equals(value))
+                {
+                    returnBool = false;
+                }
+            }            
+        } 
+        catch (Exception e) 
+        {
+            e.printStackTrace();
+        }
+
+        return returnBool;
+    }
+
+    /**
+     * Method overloading to perform the same foreignKey check but with an int
+     * @param foreignKeyRS
+     * @param value
+     * @return
+     */
+    public boolean foreignKeyConstraintsBroken(ResultSet foreignKeyRS, int value)
+    {
+        boolean returnBool = true;
+        try 
+        {
+            Statement stmt = super.getConnection().createStatement();
+            ResultSet rs2 = stmt.executeQuery("SELECT * FROM " + foreignKeyRS.getString("PKTABLE_NAME"));
+    
+            int columnNumber = 	rs2.findColumn(foreignKeyRS.getString("PKCOLUMN_NAME"));
+            while (rs2.next()) 
+            {          
+                int columnValue = rs2.getInt(columnNumber);
+
+                if(columnValue == value)
+                {
+                    returnBool = false;
+                }
+            }            
+        } 
+        catch (Exception e) 
+        {
+            e.printStackTrace();
+        }
+
+        return returnBool;
+    }
+
+    /**
      * get the DDL which creates a table given a string as input which represents the table name.
      */
     @Override
@@ -97,15 +180,14 @@ public class DatabaseDumper201 extends DatabaseDumper
                 if(name.equals(input))
                 {
                     returnString += input + " (";
-
+                    
                     DatabaseMetaData dbmd = super.getConnection().getMetaData();
                     ResultSet rs2 = dbmd.getColumns(null, null, name, null);
-                    
                     
                     //Fetching needed column data and types
                     while(rs2.next())
                     {
-                        returnString += rs2.getString("COLUMN_NAME")+ " " + rs2.getString("TYPE_NAME");
+                        returnString += rs2.getString("COLUMN_NAME") + " " + rs2.getString("TYPE_NAME");
                         returnString += ",";
                     }
                     
@@ -122,7 +204,7 @@ public class DatabaseDumper201 extends DatabaseDumper
                     String temp2 = "";
                     while(fk.next())
                     {
-                        temp2 += " FOREIGN KEY ("  + fk.getString("FKCOLUMN_NAME") +") REFERENCES " + fk.getString("PKTABLE_NAME") + "(" +fk.getString("PKCOLUMN_NAME") +"),";
+                        temp2 += " FOREIGN KEY ("  + fk.getString("FKCOLUMN_NAME") +") REFERENCES " + fk.getString("PKTABLE_NAME") + "(" + fk.getString("PKCOLUMN_NAME") +"),";
                     } 
                     
                     //Final string to be returned trimmed
@@ -149,7 +231,7 @@ public class DatabaseDumper201 extends DatabaseDumper
                         returnString = returnString.substring(0, returnString.length() - 1);
                         temp = temp.substring(0, temp.length() - 2); 
                         returnString += ", PRIMARY KEY(" + temp +"));";
-                    }
+                    }                    
                 }
             }            
         } 
@@ -231,19 +313,23 @@ public class DatabaseDumper201 extends DatabaseDumper
                     int columnsNumber2 = rsmd2.getColumnCount();
                     while (rs2.next()) 
                     {
-                        returnString += insertInto; 
+                        DatabaseMetaData dbmd = super.getConnection().getMetaData();
+                        ResultSet fk = dbmd.getImportedKeys(null, null, name);
+                        String temp = "";
+                        boolean tempBool = false;
+                        
                         for (int i = 1; i <= columnsNumber2; i++) 
                         {
                             
                             String columnValue = rs2.getString(i);
-
+                            
                             if(this.isNumeric(columnValue) == true)
                             {
                                 values += columnValue;
                             }
                             else
                             {
-                                values += "'" + columnValue + "'";
+                                values += "'" + this.cleanUpPrimes(columnValue) + "'";
                             }
                             
                             if (i == columnsNumber2)
@@ -254,11 +340,46 @@ public class DatabaseDumper201 extends DatabaseDumper
                             {
                                 values += ",";
                             }
+                            
+                            /*if(fk.getString("FKTABLE_NAME") != null)
+                            {
+                                if(rs2.findColumn(fk.getString("FKCOLUMN_NAME")) == i)
+                                {
+                                    temp = columnValue;
+                                }
+                                
+                                if(!foreignKeyConstraintsBroken(fk, temp))
+                                {
+                                    tempBool = true;
+                                    break;
+                                }
+                            }
+                            else
+                            {
+                                tempBool = true;
+                            }*/
+                            
                         }
+                        
+                        /*if(!tempBool)
+                        {
+                            returnString += insertInto; 
+                            returnString += values;                            
+                            values = " VALUES (";
+                        }
+                        else
+                        {
+                            insertInto = "";
+                            values = "";
+                            returnString += "\n";
+                        }*/
 
-                        returnString += values;
+                        returnString += insertInto; 
+                        returnString += values;                            
                         values = " VALUES (";
+                        
                     }
+
                 }
             }            
         } 
@@ -277,7 +398,6 @@ public class DatabaseDumper201 extends DatabaseDumper
         try 
         {
             List<String> namesList = this.getViewNames();
-            //System.out.println(namesList);
             DatabaseMetaData md = this.getConnection().getMetaData();
             returnString = "CREATE TABLE ";
             for (String name : namesList) 
@@ -428,21 +548,25 @@ public class DatabaseDumper201 extends DatabaseDumper
                 {
                     String tempString = "";
                     String temp = rs.getString("ASC_OR_DESC");
-                    
-                    if(temp == "A")
-                    {
-                        tempString = "CREATE INDEX '" + rs.getString("INDEX_NAME") + "' ON " + rs.getString("TABLE_NAME") + " ("  + rs.getString("COLUMN_NAME") + " ASC);\n";   
-                    }
-                    else if(temp == "D")
-                    {
-                        tempString = "CREATE INDEX '" + rs.getString("INDEX_NAME") + "' ON " + rs.getString("TABLE_NAME") + " ("  + rs.getString("COLUMN_NAME") + " DESC);\n";   
-                    }
-                    else if(temp == null)
-                    {
-                        tempString = "CREATE INDEX '" + rs.getString("INDEX_NAME") + "' ON " + rs.getString("TABLE_NAME") + " ("  + rs.getString("COLUMN_NAME") + ");\n";   
-                    }
 
-                    returnString += tempString;
+                    if(!rs.getString("INDEX_NAME").contains("sqlite_autoindex"))
+                    {
+                        if(temp == "A")
+                        {
+                            tempString = "CREATE INDEX '" + rs.getString("INDEX_NAME") + "' ON " + rs.getString("TABLE_NAME") + " ("  + rs.getString("COLUMN_NAME") + " ASC);\n";   
+                        }
+                        else if(temp == "D")
+                        {
+                            tempString = "CREATE INDEX '" + rs.getString("INDEX_NAME") + "' ON " + rs.getString("TABLE_NAME") + " ("  + rs.getString("COLUMN_NAME") + " DESC);\n";   
+                        }
+                        else if(temp == null)
+                        {
+                            tempString = "CREATE INDEX '" + rs.getString("INDEX_NAME") + "' ON " + rs.getString("TABLE_NAME") + " ("  + rs.getString("COLUMN_NAME") + ");\n";   
+                        }
+    
+                        returnString += tempString;
+                    }
+                    
                 }
                 
             }

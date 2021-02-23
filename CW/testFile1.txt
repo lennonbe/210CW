@@ -52,7 +52,7 @@ INSERT INTO heroes (hero_id, codename, secretIdentity, homeWorld_id) VALUES (22,
 INSERT INTO heroes (hero_id, codename, secretIdentity, homeWorld_id) VALUES (23,'Dream Girl ','Nura Nal ',14);
 INSERT INTO heroes (hero_id, codename, secretIdentity, homeWorld_id) VALUES (24,'Ferro Lad ','Andrew Nolan ',10);
 INSERT INTO heroes (hero_id, codename, secretIdentity, homeWorld_id) VALUES (25,'Karate Kid ','Val Armorr ',10);
-INSERT INTO heroes (hero_id, codename, secretIdentity, homeWorld_id) VALUES (26,'Princess Projectra','Projectra Wind'zzor ',15);
+INSERT INTO heroes (hero_id, codename, secretIdentity, homeWorld_id) VALUES (26,'Princess Projectra','Projectra Wind"zzor ',15);
 INSERT INTO heroes (hero_id, codename, secretIdentity, homeWorld_id) VALUES (27,'Shadow Lass ','Tasmia Mallor ',19);
 INSERT INTO heroes (hero_id, codename, secretIdentity, homeWorld_id) VALUES (28,'Chemical King ','Condo Arlik ',16);
 INSERT INTO heroes (hero_id, codename, secretIdentity, homeWorld_id) VALUES (29,'Timber Wolf','Brin Londo ',26);
@@ -193,7 +193,4 @@ CREATE TABLE hw_view ('hero_id' INTEGER,'codename' VARCHAR(30),'secretIdentity' 
 --Indexes of DB: 
 CREATE INDEX 'planets_id_index' ON planets (planet_id);
 CREATE INDEX 'heroes code name index' ON heroes (codename);
-CREATE INDEX 'sqlite_autoindex_powers_1' ON powers (hero_id);
-CREATE INDEX 'sqlite_autoindex_powers_1' ON powers (description);
-CREATE INDEX 'sqlite_autoindex_missions_1' ON missions (name);
 
