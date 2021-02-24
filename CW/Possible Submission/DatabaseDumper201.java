@@ -179,7 +179,7 @@ public class DatabaseDumper201 extends DatabaseDumper
             {
                 if(name.equals(input))
                 {
-                    returnString += "'" + input + "'" + " (";
+                    returnString += input + " (";
                     
                     DatabaseMetaData dbmd = super.getConnection().getMetaData();
                     ResultSet rs2 = dbmd.getColumns(null, null, name, null);
@@ -187,7 +187,7 @@ public class DatabaseDumper201 extends DatabaseDumper
                     //Fetching needed column data and types
                     while(rs2.next())
                     {
-                        returnString += "'" + rs2.getString("COLUMN_NAME") + "'" + " " + rs2.getString("TYPE_NAME");
+                        returnString += rs2.getString("COLUMN_NAME") + " " + rs2.getString("TYPE_NAME");
                         returnString += ",";
                     }
                     
@@ -196,7 +196,7 @@ public class DatabaseDumper201 extends DatabaseDumper
                     String temp = "";
                     while(pk.next())
                     {
-                        temp += "'" + pk.getString("COLUMN_NAME") + "'" + ", ";
+                        temp += pk.getString("COLUMN_NAME") + ", ";
                     }
                     
                     //Building the FOREIGN KEYS string
@@ -204,7 +204,7 @@ public class DatabaseDumper201 extends DatabaseDumper
                     String temp2 = "";
                     while(fk.next())
                     {
-                        temp2 += " FOREIGN KEY ("  + "'" +fk.getString("FKCOLUMN_NAME") + "'" +") REFERENCES " + "'" +fk.getString("PKTABLE_NAME") + "'" + "(" + "'" + fk.getString("PKCOLUMN_NAME") +"'),";
+                        temp2 += " FOREIGN KEY ("  + fk.getString("FKCOLUMN_NAME") +") REFERENCES " + fk.getString("PKTABLE_NAME") + "(" + fk.getString("PKCOLUMN_NAME") +"),";
                     } 
                     
                     //Final string to be returned trimmed
@@ -391,103 +391,6 @@ public class DatabaseDumper201 extends DatabaseDumper
         return returnString;
     }
 
-    public String getInsertsForView(String input) 
-    {
-        String returnString = "";
-        try 
-        {
-            List<String> namesList = this.getViewNames();
-            DatabaseMetaData md = this.getConnection().getMetaData();
-            String insertInto = "INSERT INTO " + input + " (";
-            String values = " VALUES (";
-            String columnNames = "";
-            boolean gotColumnNames = false;
-
-            for (String name : namesList) 
-            {
-                if(name.equals(input))
-                {
-                    Statement stmt = super.getConnection().createStatement();
-                    ResultSet rs = stmt.executeQuery("SELECT * FROM " + input);
-                    
-                    ResultSetMetaData rsmd = rs.getMetaData();
-                    int columnsNumber = rsmd.getColumnCount();
-
-                    if(gotColumnNames == false)
-                    {
-                        //Get column names
-                        for (int i = 1; i <= columnsNumber; i++) 
-                        {
-                            columnNames += rsmd.getColumnName(i);
-                            
-                            if (i == columnsNumber)
-                            {
-                                columnNames += ")";
-                            }
-                            else
-                            {
-                                columnNames += ", ";
-                            }
-                                
-                        }
-    
-                        insertInto += columnNames;
-                        gotColumnNames = true;
-                    }
-                    //Finished getting column names and no. and will no longer repeat this process in the loop
-
-                    
-                    //Use a second result set of the same data to loop thorugh
-                    ResultSet rs2 = stmt.executeQuery("SELECT * FROM " + input);
-                    ResultSetMetaData rsmd2 = rs2.getMetaData();
-                    int columnsNumber2 = rsmd2.getColumnCount();
-                    while (rs2.next()) 
-                    {
-                        DatabaseMetaData dbmd = super.getConnection().getMetaData();
-                        ResultSet fk = dbmd.getImportedKeys(null, null, name);
-                        String temp = "";
-                        boolean tempBool = false;
-                        
-                        for (int i = 1; i <= columnsNumber2; i++) 
-                        {
-                            
-                            String columnValue = rs2.getString(i);
-                            
-                            if(this.isNumeric(columnValue) == true)
-                            {
-                                values += columnValue;
-                            }
-                            else
-                            {
-                                values += "'" + this.cleanUpPrimes(columnValue) + "'";
-                            }
-                            
-                            if (i == columnsNumber2)
-                            {
-                                values += ");\n";
-                            }
-                            else
-                            {
-                                values += ",";
-                            }                            
-                        }
-                    
-                        returnString += insertInto; 
-                        returnString += values;                            
-                        values = " VALUES (";
-                        
-                    }
-                }
-            }            
-        } 
-        catch (Exception e) 
-        {
-            //TODO: handle exception
-        }
-
-        return returnString;
-    }
-
     @Override
     public String getDDLForView(String input) 
     {
@@ -501,7 +404,7 @@ public class DatabaseDumper201 extends DatabaseDumper
             {
                 if(name.equals(input))
                 {
-                    returnString += "view_" + input + " (";
+                    returnString += input + "_view (";
                     
                     DatabaseMetaData dbmd = super.getConnection().getMetaData();
                     ResultSet rs2 = dbmd.getColumns(null, null, name, null);
@@ -537,7 +440,6 @@ public class DatabaseDumper201 extends DatabaseDumper
             str += this.getDDLForTable(name);
             str += "\n";
             str += this.getInsertsForTable(name);
-            str += "\n--\n";
         }
 
         str += "\n--Views create and inserts: \n";
@@ -546,8 +448,7 @@ public class DatabaseDumper201 extends DatabaseDumper
         {
             str += this.getDDLForView(name);
             str += "\n";
-            str += this.getInsertsForView(name);
-            str += "\n--\n";
+            str += this.getInsertsForTable(name);
         }
 
         str += "\n--Indexes of DB: \n";
@@ -559,7 +460,7 @@ public class DatabaseDumper201 extends DatabaseDumper
     public List<String> listSorter(List<String> input)
     {
         List<String> namesList = this.getTableNames();
-
+        
         int index = 0;
         for(String name : namesList)
         {
@@ -614,7 +515,6 @@ public class DatabaseDumper201 extends DatabaseDumper
             //str += this.getInsertsForTable(name);
         }
 
-        /*
         System.out.println("\nAll create statements:\n");
         System.out.println(str);
 
@@ -629,7 +529,6 @@ public class DatabaseDumper201 extends DatabaseDumper
 
         System.out.println("\nAll create statements SORTED:\n");
         System.out.println(str);
-        */
     }
 
     @Override
@@ -654,15 +553,15 @@ public class DatabaseDumper201 extends DatabaseDumper
                     {
                         if(temp == "A")
                         {
-                            tempString = "CREATE INDEX '" + rs.getString("INDEX_NAME") + "' ON '" + rs.getString("TABLE_NAME") + "' ('"  + rs.getString("COLUMN_NAME") + "' ASC);\n";   
+                            tempString = "CREATE INDEX '" + rs.getString("INDEX_NAME") + "' ON " + rs.getString("TABLE_NAME") + " ("  + rs.getString("COLUMN_NAME") + " ASC);\n";   
                         }
                         else if(temp == "D")
                         {
-                            tempString = "CREATE INDEX '" + rs.getString("INDEX_NAME") + "' ON '" + rs.getString("TABLE_NAME") + "' ('"  + rs.getString("COLUMN_NAME") + "' DESC);\n";   
+                            tempString = "CREATE INDEX '" + rs.getString("INDEX_NAME") + "' ON " + rs.getString("TABLE_NAME") + " ("  + rs.getString("COLUMN_NAME") + " DESC);\n";   
                         }
                         else if(temp == null)
                         {
-                            tempString = "CREATE INDEX '" + rs.getString("INDEX_NAME") + "' ON '" + rs.getString("TABLE_NAME") + "' ('"  + rs.getString("COLUMN_NAME") + "');\n";   
+                            tempString = "CREATE INDEX '" + rs.getString("INDEX_NAME") + "' ON " + rs.getString("TABLE_NAME") + " ("  + rs.getString("COLUMN_NAME") + ");\n";   
                         }
     
                         returnString += tempString;
