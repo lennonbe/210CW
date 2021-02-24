@@ -233,6 +233,10 @@ public class DatabaseDumper201 extends DatabaseDumper
                         returnString += ", PRIMARY KEY(" + temp +"));";
                     }                    
                 }
+                else
+                {
+                    returnString += "";
+                }
             }            
         } 
         catch (Exception e) 
@@ -380,6 +384,10 @@ public class DatabaseDumper201 extends DatabaseDumper
                         
                     }
 
+                }
+                else
+                {
+                    returnString += "";
                 }
             }            
         } 
@@ -605,31 +613,40 @@ public class DatabaseDumper201 extends DatabaseDumper
         System.out.println(this.getDumpString());
         this.dumpToFileName("testFile1");
 
-        List<String> namesList = this.getTableNames();
+        //Printing out default order
         String str = "";
+        List<String> namesList = this.getTableNames();
         for(String name : namesList)
         {
             str += this.getDDLForTable(name);
             str += "\n";
-            //str += this.getInsertsForTable(name);
         }
-
-        /*
-        System.out.println("\nAll create statements:\n");
+        System.out.println("\nAll create statements not shuffled:\n");
         System.out.println(str);
 
+        //Printing out the shuffled list
+        str = "";
+        Collections.shuffle(namesList);
+        Collections.reverse(namesList);
+        for(String name : namesList)
+        {
+            str += this.getDDLForTable(name);
+            str += "\n";
+        }
+        System.out.println("\nAll create statements shuffled:\n");
+        System.out.println(str);
+
+        //Printing out the list after reordering
         namesList = this.listSorter(namesList);
         str = "";
         for(String name : namesList)
         {
             str += this.getDDLForTable(name);
             str += "\n";
-            //str += this.getInsertsForTable(name);
         }
-
         System.out.println("\nAll create statements SORTED:\n");
         System.out.println(str);
-        */
+        
     }
 
     @Override

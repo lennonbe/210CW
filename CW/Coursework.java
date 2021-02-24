@@ -181,7 +181,7 @@ public class Coursework {
      * @throws Exception for anything that might go wrong .... bad practice
      */
     public static void main(String[] args) throws Exception {
-        if (args.length==0){args=new String[] {"LSH.db"};}
+        //if (args.length==0){args=new String[] {"LSH.db"};}
         String sqliteDB = args[0];
         Class.forName("org.sqlite.JDBC");
         // this is a try with resource.
