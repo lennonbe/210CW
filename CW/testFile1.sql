@@ -54,7 +54,7 @@ INSERT INTO heroes (hero_id, codename, secretIdentity, homeWorld_id) VALUES (22,
 INSERT INTO heroes (hero_id, codename, secretIdentity, homeWorld_id) VALUES (23,'Dream Girl ','Nura Nal ',14);
 INSERT INTO heroes (hero_id, codename, secretIdentity, homeWorld_id) VALUES (24,'Ferro Lad ','Andrew Nolan ',10);
 INSERT INTO heroes (hero_id, codename, secretIdentity, homeWorld_id) VALUES (25,'Karate Kid ','Val Armorr ',10);
-INSERT INTO heroes (hero_id, codename, secretIdentity, homeWorld_id) VALUES (26,'Princess Projectra','Projectra Wind"zzor ',15);
+INSERT INTO heroes (hero_id, codename, secretIdentity, homeWorld_id) VALUES (26,'Princess Projectra','Projectra Wind''zzor ',15);
 INSERT INTO heroes (hero_id, codename, secretIdentity, homeWorld_id) VALUES (27,'Shadow Lass ','Tasmia Mallor ',19);
 INSERT INTO heroes (hero_id, codename, secretIdentity, homeWorld_id) VALUES (28,'Chemical King ','Condo Arlik ',16);
 INSERT INTO heroes (hero_id, codename, secretIdentity, homeWorld_id) VALUES (29,'Timber Wolf','Brin Londo ',26);
@@ -197,8 +197,8 @@ INSERT INTO missions (name, planet_name) VALUES ('Mission on non-existant planet
 
 --Views create and inserts: 
 CREATE TABLE view_hw ('hero_id' INTEGER,'codename' VARCHAR(30),'secretIdentity' VARCHAR(30),'homeWorld_id' INTEGER);
-INSERT INTO hw (hero_id, codename, secretIdentity, homeWorld_id) VALUES (1,'Cosmic Boy','Rokk Krinn ',4);
-INSERT INTO hw (hero_id, codename, secretIdentity, homeWorld_id) VALUES (36,'Magnetic Kid ','Pol Krinn ',4);
+INSERT INTO view_hw (hero_id, codename, secretIdentity, homeWorld_id) VALUES (1,'Cosmic Boy','Rokk Krinn ',4);
+INSERT INTO view_hw (hero_id, codename, secretIdentity, homeWorld_id) VALUES (36,'Magnetic Kid ','Pol Krinn ',4);
 
 --
 

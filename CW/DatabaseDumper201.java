@@ -91,7 +91,7 @@ public class DatabaseDumper201 extends DatabaseDumper
 
         if(returnString.indexOf("'") != -1)
         {
-            returnString = returnString.replace("'", "\"");
+            returnString = returnString.replace("'", "''");
         }
 
         return returnString;
@@ -398,7 +398,7 @@ public class DatabaseDumper201 extends DatabaseDumper
         {
             List<String> namesList = this.getViewNames();
             DatabaseMetaData md = this.getConnection().getMetaData();
-            String insertInto = "INSERT INTO " + input + " (";
+            String insertInto = "INSERT INTO view_" + input + " (";
             String values = " VALUES (";
             String columnNames = "";
             boolean gotColumnNames = false;
@@ -409,7 +409,7 @@ public class DatabaseDumper201 extends DatabaseDumper
                 {
                     Statement stmt = super.getConnection().createStatement();
                     ResultSet rs = stmt.executeQuery("SELECT * FROM " + input);
-                    
+
                     ResultSetMetaData rsmd = rs.getMetaData();
                     int columnsNumber = rsmd.getColumnCount();
 
