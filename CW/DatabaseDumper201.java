@@ -92,78 +92,14 @@ public class DatabaseDumper201 extends DatabaseDumper
     {
         String returnString = input;
 
+        //Cleans up the quotes
         if(returnString.indexOf("'") != -1)
         {
             returnString = returnString.replace("'", "''");
         }
 
+        //Returns a string with the corrected escaping of quotes
         return returnString;
-    }
-
-    /**
-     * Allows to check if foreign key constraints are broken
-     * @param foreignKeyRS
-     * @param value
-     * @return
-     */
-    public boolean foreignKeyConstraintsBroken(ResultSet foreignKeyRS, String value)
-    {
-        boolean returnBool = true;
-        try 
-        {
-            Statement stmt = super.getConnection().createStatement();
-            ResultSet rs2 = stmt.executeQuery("SELECT * FROM " + foreignKeyRS.getString("PKTABLE_NAME"));
-    
-            int columnNumber = 	rs2.findColumn(foreignKeyRS.getString("PKCOLUMN_NAME"));
-            while (rs2.next()) 
-            {          
-                String columnValue = rs2.getString(columnNumber);
-
-                if(columnValue.equals(value))
-                {
-                    returnBool = false;
-                }
-            }            
-        } 
-        catch (Exception e) 
-        {
-            e.printStackTrace();
-        }
-
-        return returnBool;
-    }
-
-    /**
-     * Method overloading to perform the same foreignKey check but with an int
-     * @param foreignKeyRS
-     * @param value
-     * @return
-     */
-    public boolean foreignKeyConstraintsBroken(ResultSet foreignKeyRS, int value)
-    {
-        boolean returnBool = true;
-        try 
-        {
-            Statement stmt = super.getConnection().createStatement();
-            ResultSet rs2 = stmt.executeQuery("SELECT * FROM " + foreignKeyRS.getString("PKTABLE_NAME"));
-    
-            int columnNumber = 	rs2.findColumn(foreignKeyRS.getString("PKCOLUMN_NAME"));
-            while (rs2.next()) 
-            {          
-                int columnValue = rs2.getInt(columnNumber);
-
-                if(columnValue == value)
-                {
-                    returnBool = false;
-                }
-            }            
-        } 
-        catch (Exception e) 
-        {
-            e.printStackTrace();
-        }
-
-        return returnBool;
     }
 
     //Method for getting the drop statements to delete tables if they already exist.
@@ -305,20 +241,6 @@ public class DatabaseDumper201 extends DatabaseDumper
         return returnString;
     }
 
-    public boolean isNumeric(String str) 
-    { 
-        try 
-        {  
-          Integer.parseInt(str);  
-          return true;
-        } 
-        catch(NumberFormatException e)
-        {  
-          return false;  
-        }  
-
-      }
-
     /**
      * Get the inserts needed to build the table based of a string input which represents the table name
      */
@@ -329,7 +251,6 @@ public class DatabaseDumper201 extends DatabaseDumper
         try 
         {
             List<String> namesList = this.getTableNames();
-            DatabaseMetaData md = this.getConnection().getMetaData();
             String insertInto = "INSERT INTO " + input + " (";
             String values = " VALUES (";
             String columnNames = "";
