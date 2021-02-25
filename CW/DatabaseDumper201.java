@@ -591,6 +591,23 @@ public class DatabaseDumper201 extends DatabaseDumper
         return returnString;
     }
 
+    public String getDatabaseAndDriverVersion()
+    {
+        String returnString = "";
+        try 
+        {
+            DatabaseMetaData dbmd = super.getConnection().getMetaData();
+            returnString = "--JDBC version " + dbmd.getJDBCMajorVersion() + "." + dbmd.getJDBCMinorVersion() + "\n"; 
+            returnString += "--Database version " + dbmd.getDatabaseMajorVersion() + "." + dbmd.getDatabaseMinorVersion();        
+        } 
+        catch (Exception e) 
+        {
+            e.printStackTrace();
+        }
+
+        return returnString;
+    }
+
     @Override
     public String getDumpString() 
     {
@@ -598,7 +615,8 @@ public class DatabaseDumper201 extends DatabaseDumper
         List<String> namesList = this.getTableNames();
         this.listSorter(namesList);
 
-        String str = "--Tables drop statements: \n";
+        String str = "\n" + getDatabaseAndDriverVersion() + "\n";
+        str += "\n--Tables drop statements: \n";
         str += getDropsForTable();
 
         str += "\n--Views drop statements: \n";

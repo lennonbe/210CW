@@ -1,3 +1,7 @@
+
+--JDBC version 2.1
+--Database version 3.0
+
 --Tables drop statements: 
 DROP TABLE IF EXISTS planets;
 --
