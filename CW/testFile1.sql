@@ -8,12 +8,12 @@ DROP TABLE IF EXISTS powers;
 DROP TABLE IF EXISTS missions;
 --
 
---Tables drop statements: 
+--Views drop statements: 
 DROP TABLE IF EXISTS view_hw;
 --
 
 --Tables create and inserts: 
-CREATE TABLE 'planets' ('planet_id' INTEGER,'name' VARCHAR(15),'popvalue' INTEGER, PRIMARY KEY('planet_id'));
+CREATE TABLE 'planets' ('planet_id' INTEGER,'name' VARCHAR(15) NOT NULL,'popvalue' INTEGER, PRIMARY KEY('planet_id'));
 --
 INSERT INTO planets (planet_id, name, popvalue) VALUES (1,'Antares',17);
 --
@@ -377,7 +377,7 @@ INSERT INTO powers (hero_id, description) VALUES (39,'Telepathy');
 --
 INSERT INTO powers (hero_id, description) VALUES (39,'telekinesis');
 --
-CREATE TABLE 'missions' ('name' VARCHAR (100),'planet_name' VARCHAR (15), PRIMARY KEY('name'), FOREIGN KEY ('planet_name') REFERENCES 'planets'('name'));
+CREATE TABLE 'missions' ('name' VARCHAR (100),'planet_name' VARCHAR (15) NOT NULL, PRIMARY KEY('name'), FOREIGN KEY ('planet_name') REFERENCES 'planets'('name'));
 --
 INSERT INTO missions (name, planet_name) VALUES ('Darkseid','Apocalypse');
 --

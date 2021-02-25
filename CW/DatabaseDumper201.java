@@ -235,8 +235,16 @@ public class DatabaseDumper201 extends DatabaseDumper
                     //Fetching needed column data and types
                     while(rs2.next())
                     {
-                        returnString += "'" + rs2.getString("COLUMN_NAME") + "'" + " " + rs2.getString("TYPE_NAME");
-                        returnString += ",";
+                        if(rs2.getInt("NULLABLE") == dbmd.columnNoNulls)
+                        {
+                            returnString += "'" + rs2.getString("COLUMN_NAME") + "'" + " " + rs2.getString("TYPE_NAME") + " NOT NULL";
+                            returnString += ",";
+                        }
+                        else
+                        {
+                            returnString += "'" + rs2.getString("COLUMN_NAME") + "'" + " " + rs2.getString("TYPE_NAME");
+                            returnString += ",";
+                        }
                     }
                     
                     //Building the PRIMARY KEY string
@@ -593,7 +601,7 @@ public class DatabaseDumper201 extends DatabaseDumper
         String str = "--Tables drop statements: \n";
         str += getDropsForTable();
 
-        str += "\n--Tables drop statements: \n";
+        str += "\n--Views drop statements: \n";
         str += getDropsForView();
         
         str += "\n--Tables create and inserts: \n";
