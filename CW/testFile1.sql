@@ -15,6 +15,8 @@ DROP TABLE IF EXISTS missions;
 --Views drop statements: 
 DROP TABLE IF EXISTS view_hw;
 --
+DROP TABLE IF EXISTS view_viewtest;
+--
 
 --Tables create and inserts: 
 CREATE TABLE 'planets' ('planet_id' INTEGER,'name' VARCHAR(15) NOT NULL,'popvalue' INTEGER, PRIMARY KEY('planet_id'));
@@ -398,6 +400,16 @@ CREATE TABLE view_hw ('hero_id' INTEGER,'codename' VARCHAR(30),'secretIdentity' 
 INSERT INTO view_hw (hero_id, codename, secretIdentity, homeWorld_id) VALUES (1,'Cosmic Boy','Rokk Krinn ',4);
 --
 INSERT INTO view_hw (hero_id, codename, secretIdentity, homeWorld_id) VALUES (36,'Magnetic Kid ','Pol Krinn ',4);
+--
+CREATE TABLE view_viewtest ('name' VARCHAR (100));
+--
+INSERT INTO view_viewtest (name) VALUES ('Darkseid');
+--
+INSERT INTO view_viewtest (name) VALUES ('Earth War');
+--
+INSERT INTO view_viewtest (name) VALUES ('Planet Kidnap');
+--
+INSERT INTO view_viewtest (name) VALUES ('Mission on non-existant planet');
 --
 
 --Indexes of DB: 

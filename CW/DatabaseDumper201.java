@@ -30,21 +30,21 @@ public class DatabaseDumper201 extends DatabaseDumper
     /**
      * Method used to get the names of the different tables in the database.
      */
-    //List<String> tableNames = new ArrayList<>();
     public List<String> getTableNames()
     {
+        //Empty list
         List<String> result = new ArrayList<>();
-        
         try 
         {
+            //Get a result set where we can access the table names for the tables
             String[] VIEW_TYPES = {"TABLE"};
             DatabaseMetaData md = this.getConnection().getMetaData();
             ResultSet rs = md.getTables(null, null, "%", VIEW_TYPES);
 
+            //Iterate through the tables inside the result set adding their names to the list
             while (rs.next()) 
             {
                 result.add(rs.getString("TABLE_NAME"));
-                //tableNames.add(rs.getString("TABLE_NAME"));
             }
 
         }
@@ -53,19 +53,22 @@ public class DatabaseDumper201 extends DatabaseDumper
             e.printStackTrace();
         }
 
+        //Return the list
         return result;
     }
 
     @Override
     public List<String> getViewNames() 
     {
+        //Empty array list
         List<String> result = new ArrayList<>();
-
         try 
         {
+            //Get a result set where we can access the table names for the views
             DatabaseMetaData md = this.getConnection().getMetaData();
             ResultSet rs = md.getTables(null, null, "%", new String[]{"VIEW"});
 
+            //Iterate through the views inside the result set adding their names to the list
             while (rs.next()) 
             {
                 result.add(rs.getString("TABLE_NAME"));
@@ -76,7 +79,7 @@ public class DatabaseDumper201 extends DatabaseDumper
             e.printStackTrace();
         }
         
-
+        //Return the list
         return result;
     }
 
@@ -170,7 +173,6 @@ public class DatabaseDumper201 extends DatabaseDumper
         try 
         {
             List<String> namesList = this.getTableNames();
-            DatabaseMetaData md = this.getConnection().getMetaData();
             
             for(String name : namesList)
             {
@@ -194,7 +196,6 @@ public class DatabaseDumper201 extends DatabaseDumper
         try 
         {
             List<String> namesList = this.getViewNames();
-            DatabaseMetaData md = this.getConnection().getMetaData();
             
             for(String name : namesList)
             {
@@ -221,11 +222,10 @@ public class DatabaseDumper201 extends DatabaseDumper
         try 
         {
             List<String> namesList = this.getTableNames();
-            DatabaseMetaData md = this.getConnection().getMetaData();
             returnString = "CREATE TABLE ";
             for (String name : namesList) 
             {
-                if(name.equals(input))
+                if(name.equals(input)  && !name.contains("sqlite_"))
                 {
                     returnString += "'" + input + "'" + " (";
                     
@@ -337,7 +337,7 @@ public class DatabaseDumper201 extends DatabaseDumper
 
             for (String name : namesList) 
             {
-                if(name.equals(input))
+                if(name.equals(input) && !name.contains("sqlite_"))
                 {
                     Statement stmt = super.getConnection().createStatement();
                     ResultSet rs = stmt.executeQuery("SELECT * FROM " + input);
@@ -374,67 +374,71 @@ public class DatabaseDumper201 extends DatabaseDumper
                     ResultSetMetaData rsmd2 = rs2.getMetaData();
                     int columnsNumber2 = rsmd2.getColumnCount();
                     while (rs2.next()) 
-                    {
-                        DatabaseMetaData dbmd = super.getConnection().getMetaData();
-                        ResultSet fk = dbmd.getImportedKeys(null, null, name);
-                        String temp = "";
-                        boolean tempBool = false;
-                        
+                    {                        
                         for (int i = 1; i <= columnsNumber2; i++) 
                         {
+                            int typeInt = rsmd.getColumnType(i); 
                             
-                            String columnValue = rs2.getString(i);
-                            
-                            if(this.isNumeric(columnValue) == true)
+                            if(typeInt == java.sql.Types.VARCHAR 
+                            || typeInt == java.sql.Types.LONGNVARCHAR
+                            || typeInt == java.sql.Types.LONGVARCHAR
+                            || typeInt == java.sql.Types.NCHAR || typeInt == java.sql.Types.NVARCHAR)
                             {
-                                values += columnValue;
+                                String columnValue = rs2.getString(i);
+                                values += "'" + this.cleanUpPrimes(columnValue) + "'";
+                            }
+                            else if(typeInt == java.sql.Types.BOOLEAN
+                            || typeInt == java.sql.Types.BINARY
+                            || typeInt == java.sql.Types.LONGVARBINARY
+                            || typeInt == java.sql.Types.DATE || typeInt == java.sql.Types.TIME
+                            || typeInt == java.sql.Types.TIMESTAMP || typeInt == java.sql.Types.TIMESTAMP_WITH_TIMEZONE
+                            || typeInt == java.sql.Types.TIME_WITH_TIMEZONE)
+                            {
+                                String columnValue = rs2.getString(i);
+                                values += "'" + columnValue + "'";
+                            }
+                            else if(typeInt == java.sql.Types.INTEGER)
+                            {
+                                int value = rs2.getInt(i);
+                                values += value;
+                            }
+                            else if(typeInt == java.sql.Types.FLOAT)
+                            {
+                                float value = rs2.getFloat(i);
+                                values += value;
+                            }
+                            else if(typeInt == java.sql.Types.DOUBLE)
+                            {
+                                double value = rs2.getDouble(i);
+                                values += value;
+                            }
+                            else if(typeInt == java.sql.Types.BOOLEAN)
+                            {
+                                boolean value = rs2.getBoolean(i);
+                                values += "'" + value + "'";
+                            }
+                            else if(typeInt == java.sql.Types.NULL)
+                            {
+                                String value = "NULL";
+                                values += "'" + value + "'";
                             }
                             else
                             {
-                                values += "'" + this.cleanUpPrimes(columnValue) + "'";
+                                String value = rs2.getString(i);
+                                values += "'" + value + "'";
                             }
                             
+                            //If its the final column add a closing brace and semi-colon plus new line and comment dash for easier reading
                             if (i == columnsNumber2)
                             {
                                 values += ");\n--\n";
                             }
+                            //Else, just add a comma
                             else
                             {
                                 values += ",";
-                            }
-                            
-                            /*if(fk.getString("FKTABLE_NAME") != null)
-                            {
-                                if(rs2.findColumn(fk.getString("FKCOLUMN_NAME")) == i)
-                                {
-                                    temp = columnValue;
-                                }
-                                
-                                if(!foreignKeyConstraintsBroken(fk, temp))
-                                {
-                                    tempBool = true;
-                                    break;
-                                }
-                            }
-                            else
-                            {
-                                tempBool = true;
-                            }*/
-                            
+                            }                            
                         }
-                        
-                        /*if(!tempBool)
-                        {
-                            returnString += insertInto; 
-                            returnString += values;                            
-                            values = " VALUES (";
-                        }
-                        else
-                        {
-                            insertInto = "";
-                            values = "";
-                            returnString += "\n";
-                        }*/
 
                         returnString += insertInto; 
                         returnString += values;                            
@@ -508,36 +512,73 @@ public class DatabaseDumper201 extends DatabaseDumper
                     ResultSetMetaData rsmd2 = rs2.getMetaData();
                     int columnsNumber2 = rsmd2.getColumnCount();
                     while (rs2.next()) 
-                    {
-                        DatabaseMetaData dbmd = super.getConnection().getMetaData();
-                        ResultSet fk = dbmd.getImportedKeys(null, null, name);
-                        String temp = "";
-                        boolean tempBool = false;
-                        
+                    {                        
                         for (int i = 1; i <= columnsNumber2; i++) 
                         {
+                            int typeInt = rsmd.getColumnType(i); 
                             
-                            String columnValue = rs2.getString(i);
-                            
-                            if(this.isNumeric(columnValue) == true)
+                            if(typeInt == java.sql.Types.VARCHAR 
+                            || typeInt == java.sql.Types.LONGNVARCHAR
+                            || typeInt == java.sql.Types.LONGVARCHAR
+                            || typeInt == java.sql.Types.NCHAR || typeInt == java.sql.Types.NVARCHAR
+                            )
                             {
-                                values += columnValue;
+                                String columnValue = rs2.getString(i);
+                                values += "'" + this.cleanUpPrimes(columnValue) + "'";
+                            }
+                            else if(typeInt == java.sql.Types.BOOLEAN
+                            || typeInt == java.sql.Types.BINARY
+                            || typeInt == java.sql.Types.LONGVARBINARY
+                            || typeInt == java.sql.Types.DATE || typeInt == java.sql.Types.TIME
+                            || typeInt == java.sql.Types.TIMESTAMP || typeInt == java.sql.Types.TIMESTAMP_WITH_TIMEZONE
+                            || typeInt == java.sql.Types.TIME_WITH_TIMEZONE)
+                            {
+                                String columnValue = rs2.getString(i);
+                                values += "'" + columnValue + "'";
+                            }
+                            else if(typeInt == java.sql.Types.INTEGER)
+                            {
+                                int value = rs2.getInt(i);
+                                values += value;
+                            }
+                            else if(typeInt == java.sql.Types.FLOAT)
+                            {
+                                float value = rs2.getFloat(i);
+                                values += value;
+                            }
+                            else if(typeInt == java.sql.Types.DOUBLE)
+                            {
+                                double value = rs2.getDouble(i);
+                                values += value;
+                            }
+                            else if(typeInt == java.sql.Types.BOOLEAN)
+                            {
+                                boolean value = rs2.getBoolean(i);
+                                values += "'" + value + "'";
+                            }
+                            else if(typeInt == java.sql.Types.NULL)
+                            {
+                                String value = "NULL";
+                                values += "'" + value + "'";
                             }
                             else
                             {
-                                values += "'" + this.cleanUpPrimes(columnValue) + "'";
+                                String value = rs2.getString(i);
+                                values += "'" + value + "'";
                             }
                             
+                            //If its the final column add a closing brace and semi-colon plus new line and comment dash for easier reading
                             if (i == columnsNumber2)
                             {
                                 values += ");\n--\n";
                             }
+                            //Else, just add a comma
                             else
                             {
                                 values += ",";
                             }                            
                         }
-                    
+
                         returnString += insertInto; 
                         returnString += values;                            
                         values = " VALUES (";
@@ -561,7 +602,6 @@ public class DatabaseDumper201 extends DatabaseDumper
         try 
         {
             List<String> namesList = this.getViewNames();
-            DatabaseMetaData md = this.getConnection().getMetaData();
             returnString = "CREATE TABLE ";
             for (String name : namesList) 
             {
@@ -615,13 +655,18 @@ public class DatabaseDumper201 extends DatabaseDumper
         List<String> namesList = this.getTableNames();
         this.listSorter(namesList);
 
+        //Printing out a comment with the database and driver version
         String str = "\n" + getDatabaseAndDriverVersion() + "\n";
+
+        //Printing out the drop statements to delete any pre-existing tables that we may be re-writing, as if we did not do this it would cause errors
         str += "\n--Tables drop statements: \n";
         str += getDropsForTable();
 
+        //Since views are also tables, perform a drop on these as well
         str += "\n--Views drop statements: \n";
         str += getDropsForView();
         
+        //Tables create and insert statements
         str += "\n--Tables create and inserts: \n";
         for(String name : namesList)
         {
@@ -629,6 +674,7 @@ public class DatabaseDumper201 extends DatabaseDumper
             str += this.getInsertsForTable(name);
         }
 
+        //Views create and insert statements
         str += "\n--Views create and inserts: \n";
         List<String> viewsList = this.getViewNames();
         for(String name : viewsList)
@@ -637,16 +683,20 @@ public class DatabaseDumper201 extends DatabaseDumper
             str += this.getInsertsForView(name);
         }
 
+        //Indexes of the DB
         str += "\n--Indexes of DB: \n";
         str += this.getDatabaseIndexes();
 
+        //Final string with everything added to it
         return str;
     }
 
     public List<String> listSorter(List<String> input)
     {
+        //Getting list consisting of table names
         List<String> namesList = this.getTableNames();
 
+        //Sorting algorithm which replaces the location of the list element based on references
         int index = 0;
         for(String name : namesList)
         {
@@ -655,6 +705,7 @@ public class DatabaseDumper201 extends DatabaseDumper
             int index2 = 0;
             for(String name2 : namesList)
             {
+                //Use of String.contains() method to check for references
                 if(str.contains(name2) && !name.equals(name2) && index2 > index)
                 {
                     namesList.set(index, name2);
@@ -688,43 +739,9 @@ public class DatabaseDumper201 extends DatabaseDumper
     @Override
     public void dumpToSystemOut() 
     {
+        //Dumping to system out
         System.out.println(this.getDumpString());
         this.dumpToFileName("testFile1");
-
-        //Printing out default order
-        String str = "";
-        List<String> namesList = this.getTableNames();
-        for(String name : namesList)
-        {
-            str += this.getDDLForTable(name);
-        }
-        System.out.println("\nAll create statements not shuffled:\n");
-        System.out.println(str);
-
-        //Printing out the shuffled list
-        str = "";
-        Collections.shuffle(namesList);
-        Collections.reverse(namesList);
-        for(String name : namesList)
-        {
-            str += this.getDDLForTable(name);
-        }
-        System.out.println("\nAll create statements shuffled:\n");
-        System.out.println(str);
-
-        //Printing out the list after reordering
-        namesList = this.listSorter(namesList);
-        str = "";
-        for(String name : namesList)
-        {
-            str += this.getDDLForTable(name);
-        }
-        System.out.println("\nAll create statements SORTED:\n");
-        System.out.println(str);
-
-        str = getDropsForTable();
-        System.out.println("\nAll drop statements:\n");
-        System.out.println(str);
     }
 
     @Override
@@ -738,15 +755,19 @@ public class DatabaseDumper201 extends DatabaseDumper
             
             for (String name : namesList)
             {
+                //Getting index info
                 ResultSet rs = md.getIndexInfo(null, null, name, true, false);
                 
+                //Iterating through result set which contains index info
                 while(rs.next())
                 {
                     String tempString = "";
                     String temp = rs.getString("ASC_OR_DESC");
 
-                    if(!rs.getString("INDEX_NAME").contains("sqlite_autoindex"))
+                    if(!rs.getString("INDEX_NAME").contains("sqlite_"))
                     {
+                        //Handling of different ordering of indexes, per spec
+                        //Adding to a returnString the create index statements
                         if(temp == "A")
                         {
                             tempString = "CREATE INDEX '" + rs.getString("INDEX_NAME") + "' ON '" + rs.getString("TABLE_NAME") + "' ('"  + rs.getString("COLUMN_NAME") + "' ASC);";   
@@ -759,7 +780,8 @@ public class DatabaseDumper201 extends DatabaseDumper
                         {
                             tempString = "CREATE INDEX '" + rs.getString("INDEX_NAME") + "' ON '" + rs.getString("TABLE_NAME") + "' ('"  + rs.getString("COLUMN_NAME") + "');";   
                         }
-    
+                        
+                        //Slitting statements with -- for formatting
                         returnString += tempString + "\n--\n";
                     }
                     
