@@ -30,7 +30,7 @@ public class DatabaseDumper201 extends DatabaseDumper
     /**
      * Method used to get the names of the different tables in the database.
      */
-    List<String> tableNames = new ArrayList<>();
+    //List<String> tableNames = new ArrayList<>();
     public List<String> getTableNames()
     {
         List<String> result = new ArrayList<>();
@@ -44,13 +44,13 @@ public class DatabaseDumper201 extends DatabaseDumper
             while (rs.next()) 
             {
                 result.add(rs.getString("TABLE_NAME"));
-                tableNames.add(rs.getString("TABLE_NAME"));
+                //tableNames.add(rs.getString("TABLE_NAME"));
             }
 
         }
         catch (Exception e) 
         {
-            //TODO: handle exception
+            e.printStackTrace();
         }
 
         return result;
@@ -73,7 +73,7 @@ public class DatabaseDumper201 extends DatabaseDumper
         } 
         catch (Exception e) 
         {
-            //TODO: handle exception
+            e.printStackTrace();
         }
         
 
@@ -163,6 +163,54 @@ public class DatabaseDumper201 extends DatabaseDumper
         return returnBool;
     }
 
+    //Method for getting the drop statements to delete tables if they already exist.
+    public String getDropsForTable()
+    {
+        String returnString = "";
+        try 
+        {
+            List<String> namesList = this.getTableNames();
+            DatabaseMetaData md = this.getConnection().getMetaData();
+            
+            for(String name : namesList)
+            {
+                returnString += "DROP TABLE IF EXISTS ";
+                returnString += name + ";";
+                returnString += "\n--\n";
+            }
+        } 
+        catch (Exception e) 
+        {
+            e.printStackTrace();
+        }
+
+        return returnString;
+    }
+
+    //Method for getting the drop statements to delete tables if they already exist.
+    public String getDropsForView()
+    {
+        String returnString = "";
+        try 
+        {
+            List<String> namesList = this.getViewNames();
+            DatabaseMetaData md = this.getConnection().getMetaData();
+            
+            for(String name : namesList)
+            {
+                returnString += "DROP TABLE IF EXISTS ";
+                returnString += "view_" + name + ";";
+                returnString += "\n--\n";
+            }
+        } 
+        catch (Exception e) 
+        {
+            e.printStackTrace();
+        }
+
+        return returnString;
+    }
+
     /**
      * get the DDL which creates a table given a string as input which represents the table name.
      */
@@ -231,7 +279,9 @@ public class DatabaseDumper201 extends DatabaseDumper
                         returnString = returnString.substring(0, returnString.length() - 1);
                         temp = temp.substring(0, temp.length() - 2); 
                         returnString += ", PRIMARY KEY(" + temp +"));";
-                    }                    
+                    }       
+                    
+                    returnString += "\n--\n";
                 }
                 else
                 {
@@ -241,7 +291,7 @@ public class DatabaseDumper201 extends DatabaseDumper
         } 
         catch (Exception e) 
         {
-            System.out.println(e);
+            e.printStackTrace();
         }
 
         return returnString;
@@ -338,7 +388,7 @@ public class DatabaseDumper201 extends DatabaseDumper
                             
                             if (i == columnsNumber2)
                             {
-                                values += ");\n";
+                                values += ");\n--\n";
                             }
                             else
                             {
@@ -393,7 +443,7 @@ public class DatabaseDumper201 extends DatabaseDumper
         } 
         catch (Exception e) 
         {
-            //TODO: handle exception
+            e.printStackTrace();
         }
 
         return returnString;
@@ -472,7 +522,7 @@ public class DatabaseDumper201 extends DatabaseDumper
                             
                             if (i == columnsNumber2)
                             {
-                                values += ");\n";
+                                values += ");\n--\n";
                             }
                             else
                             {
@@ -490,7 +540,7 @@ public class DatabaseDumper201 extends DatabaseDumper
         } 
         catch (Exception e) 
         {
-            //TODO: handle exception
+            e.printStackTrace();
         }
 
         return returnString;
@@ -521,13 +571,13 @@ public class DatabaseDumper201 extends DatabaseDumper
                     }
                     
                     returnString = returnString.substring(0, returnString.length() - 1); 
-                    returnString += ");";
+                    returnString += ");\n--\n";
                 }
             }            
         } 
         catch (Exception e) 
         {
-            //TODO: handle exception
+            e.printStackTrace();
         }
 
         return returnString;
@@ -536,16 +586,21 @@ public class DatabaseDumper201 extends DatabaseDumper
     @Override
     public String getDumpString() 
     {
-        // TODO Auto-generated method stub
-        String str = "--Tables create and inserts: \n";
-
+        //Sorting the list containing the table names, this allows them to be in correct order
         List<String> namesList = this.getTableNames();
+        this.listSorter(namesList);
+
+        String str = "--Tables drop statements: \n";
+        str += getDropsForTable();
+
+        str += "\n--Tables drop statements: \n";
+        str += getDropsForView();
+        
+        str += "\n--Tables create and inserts: \n";
         for(String name : namesList)
         {
             str += this.getDDLForTable(name);
-            str += "\n";
             str += this.getInsertsForTable(name);
-            str += "\n--\n";
         }
 
         str += "\n--Views create and inserts: \n";
@@ -553,9 +608,7 @@ public class DatabaseDumper201 extends DatabaseDumper
         for(String name : viewsList)
         {
             str += this.getDDLForView(name);
-            str += "\n";
             str += this.getInsertsForView(name);
-            str += "\n--\n";
         }
 
         str += "\n--Indexes of DB: \n";
@@ -594,8 +647,7 @@ public class DatabaseDumper201 extends DatabaseDumper
     @Override
     public void dumpToFileName(String fileName) 
     {
-        // TODO Auto-generated method stub
-        
+        //Method which dumps the string containing the information needed to build a DB into a .sql file
         String file = fileName + ".sql";
         try (PrintWriter out = new PrintWriter(file)) 
         {
@@ -603,7 +655,7 @@ public class DatabaseDumper201 extends DatabaseDumper
         }
         catch (Exception e) 
         {
-            System.out.println("EXCEPTION OCCURED IN: dumpToFileName()");
+            e.printStackTrace();
         }
     }
 
@@ -619,7 +671,6 @@ public class DatabaseDumper201 extends DatabaseDumper
         for(String name : namesList)
         {
             str += this.getDDLForTable(name);
-            str += "\n";
         }
         System.out.println("\nAll create statements not shuffled:\n");
         System.out.println(str);
@@ -631,7 +682,6 @@ public class DatabaseDumper201 extends DatabaseDumper
         for(String name : namesList)
         {
             str += this.getDDLForTable(name);
-            str += "\n";
         }
         System.out.println("\nAll create statements shuffled:\n");
         System.out.println(str);
@@ -642,11 +692,13 @@ public class DatabaseDumper201 extends DatabaseDumper
         for(String name : namesList)
         {
             str += this.getDDLForTable(name);
-            str += "\n";
         }
         System.out.println("\nAll create statements SORTED:\n");
         System.out.println(str);
-        
+
+        str = getDropsForTable();
+        System.out.println("\nAll drop statements:\n");
+        System.out.println(str);
     }
 
     @Override
@@ -671,18 +723,18 @@ public class DatabaseDumper201 extends DatabaseDumper
                     {
                         if(temp == "A")
                         {
-                            tempString = "CREATE INDEX '" + rs.getString("INDEX_NAME") + "' ON '" + rs.getString("TABLE_NAME") + "' ('"  + rs.getString("COLUMN_NAME") + "' ASC);\n";   
+                            tempString = "CREATE INDEX '" + rs.getString("INDEX_NAME") + "' ON '" + rs.getString("TABLE_NAME") + "' ('"  + rs.getString("COLUMN_NAME") + "' ASC);";   
                         }
                         else if(temp == "D")
                         {
-                            tempString = "CREATE INDEX '" + rs.getString("INDEX_NAME") + "' ON '" + rs.getString("TABLE_NAME") + "' ('"  + rs.getString("COLUMN_NAME") + "' DESC);\n";   
+                            tempString = "CREATE INDEX '" + rs.getString("INDEX_NAME") + "' ON '" + rs.getString("TABLE_NAME") + "' ('"  + rs.getString("COLUMN_NAME") + "' DESC);";   
                         }
                         else if(temp == null)
                         {
-                            tempString = "CREATE INDEX '" + rs.getString("INDEX_NAME") + "' ON '" + rs.getString("TABLE_NAME") + "' ('"  + rs.getString("COLUMN_NAME") + "');\n";   
+                            tempString = "CREATE INDEX '" + rs.getString("INDEX_NAME") + "' ON '" + rs.getString("TABLE_NAME") + "' ('"  + rs.getString("COLUMN_NAME") + "');";   
                         }
     
-                        returnString += tempString;
+                        returnString += tempString + "\n--\n";
                     }
                     
                 }
@@ -691,7 +743,7 @@ public class DatabaseDumper201 extends DatabaseDumper
         } 
         catch (Exception e) 
         {
-            //TODO: handle exception
+            e.printStackTrace();
         }
 
         return returnString;
